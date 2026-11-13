@@ -303,3 +303,9 @@
 - Changes: Added `app/services/chatbot.py` with `run_chatbot()` that: (1) checks guardrail keywords (medical/health/refunds/complaints/uncertainty) → forced handoff; (2) loads structured gym knowledge via `get_gym_knowledge()`; (3) attaches member context if conversation linked; (4) detects intent (plans/trainers/location/timings/membership); (5) tries LLM provider (mock or real) with grounded system prompt; (6) falls back to canned replies using knowledge + member context. Canned fallback includes plan prices, trainer info, location, timings, membership actions. `send_outbound_reply()` logs bot replies to audit trail. Added `tests/test_p2_03_chatbot.py` (12 tests).
 - Tests: backend `python -m pytest` -> 90 passed (exit 0). `ruff check .` exit 0, `mypy app` -> Success: no issues found in 64 source files.
 - Status: Done, committed.
+
+## Iteration 40
+- Task: P2-04 | Trial booking and lead capture into CRM
+- Changes: Extended chatbot with trial booking intent detection (`TRIAL_KEYWORDS`) and `_handle_trial_booking()` that: extracts name/date from message, checks for existing lead/member, creates Lead with status `trial_booked` or `new`, source `whatsapp`, and optional `trial_date`. Integrated into `run_chatbot()` flow before LLM. Added `tests/test_p2_04_trial_booking.py` (6 tests).
+- Tests: backend `python -m pytest` -> 97 passed (exit 0). `ruff check .` exit 0, `mypy app` -> Success: no issues found in 64 source files.
+- Status: Done, committed.

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
+from datetime import date
 from typing import Any
 
 from sqlalchemy.orm import Session
@@ -27,6 +29,7 @@ TRAINER_KEYWORDS = ["trainer", "coach", "session", "class", "timing", "schedule"
 LOCATION_KEYWORDS = ["where", "location", "address", "branch", "near", "directions"]
 TIMING_KEYWORDS = ["open", "close", "timing", "hours", "when", "time"]
 MEMBERSHIP_KEYWORDS = ["membership", "renew", "freeze", "upgrade", "expir", "active"]
+TRIAL_KEYWORDS = ["trial", "demo", "try", "visit", "walk in", "walk-in", "book a trial", "schedule trial"]
 
 
 @dataclass(frozen=True)
@@ -58,6 +61,8 @@ def _detect_intent(text: str) -> list[str]:
         intents.append("timings")
     if any(kw in lowered for kw in MEMBERSHIP_KEYWORDS):
         intents.append("membership")
+    if any(kw in lowered for kw in TRIAL_KEYWORDS):
+        intents.append("trial")
     return intents
 
 
@@ -84,6 +89,90 @@ def _canned_reply(intent: list[str], knowledge_text: str, member_ctx_text: str =
     if "membership" in intent:
         parts.append("For membership-specific actions (renew, freeze, upgrade), please contact reception or share your registered phone number.")
     return "\n".join(parts)
+
+
+def _handle_trial_booking(
+    db: Session,
+    gym_id: int,
+    branch_id: int,
+    from_phone: str,
+    inbound_text: str,
+    knowledge_text: str,
+    member_ctx_text: str,
+) -> ChatbotDecision | None:
+    """Extract lead info and create lead with trial_date if possible. Returns decision or None to continue."""
+    from app.models.lead import Lead
+    from app.models.member import Member
+
+    # Check if user already has an active lead
+    existing = db.query(Lead).filter(Lead.gym_id == gym_id, Lead.phone == from_phone).first()
+    if existing and existing.status not in ("lost", "converted"):
+        return ChatbotDecision(
+            reply="You already have a trial request in progress. Our team will contact you shortly.",
+            handoff=False,
+            reason="duplicate_lead",
+            meta={"lead_id": existing.id},
+        )
+
+    # Check if already a member
+    member = db.query(Member).filter(Member.phone == from_phone, Member.gym_id == gym_id).first()
+    if member:
+        return ChatbotDecision(
+            reply=f"Welcome back, {member.full_name}! You're already a member. How can I help you today?",
+            handoff=False,
+            reason="existing_member",
+        )
+
+    # Extract name from message (simple heuristic: first capitalized words before "wants"/"like"/"for")
+    name_match = re.search(r"\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\b", inbound_text)
+    extracted_name = name_match.group(1) if name_match else None
+
+    # Try to extract date (simple patterns: tomorrow, next week, YYYY-MM-DD, DD/MM)
+    trial_date = None
+    today = date.today()
+    if "tomorrow" in inbound_text.lower():
+        trial_date = today
+    elif "next week" in inbound_text.lower():
+        from datetime import timedelta
+        trial_date = today + timedelta(days=7)
+    else:
+        date_match = re.search(r"\b(\d{4}-\d{2}-\d{2})\b", inbound_text)
+        if date_match:
+            try:
+                trial_date = date.fromisoformat(date_match.group(1))
+            except ValueError:
+                pass
+
+    # Create lead
+    lead = Lead(
+        gym_id=gym_id,
+        branch_id=branch_id,
+        full_name=extracted_name or "WhatsApp Lead",
+        phone=from_phone,
+        source="whatsapp",
+        status="trial_booked" if trial_date else "new",
+        trial_date=trial_date,
+        notes=f"Via chatbot: {inbound_text[:200]}",
+    )
+    db.add(lead)
+    db.commit()
+    db.refresh(lead)
+
+    reply_parts = ["Thanks for your interest in a trial!"]
+    if extracted_name:
+        reply_parts.append(f"Got it, {extracted_name}.")
+    if trial_date:
+        reply_parts.append(f"Your trial is scheduled for {trial_date.isoformat()}. Our team will confirm shortly.")
+    else:
+        reply_parts.append("Our team will reach out to schedule your trial session.")
+    reply_parts.append("Is there anything else I can help with?")
+
+    return ChatbotDecision(
+        reply=" ".join(reply_parts),
+        handoff=False,
+        reason="trial_booked",
+        meta={"lead_id": lead.id, "trial_date": trial_date.isoformat() if trial_date else None},
+    )
 
 
 def run_chatbot(
@@ -125,7 +214,13 @@ def run_chatbot(
     # 4. Detect intent for canned fallback
     intent = _detect_intent(inbound_text)
 
-    # 5. Try LLM
+    # 5. Handle trial booking intent -> create lead in CRM
+    if "trial" in intent:
+        trial_decision = _handle_trial_booking(db, gym_id, branch_id, from_phone, inbound_text, knowledge_text, member_ctx_text)
+        if trial_decision:
+            return trial_decision
+
+    # 6. Try LLM
     llm = llm or get_llm_provider()
     is_fallback_provider = isinstance(llm, CannedFallbackLLMProvider)
     system_prompt = (
