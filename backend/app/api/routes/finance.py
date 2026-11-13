@@ -41,8 +41,8 @@ def _expense_dict(e: Expense) -> dict:
     }
 
 
-def _revenue(db: Session, gym_id: int, start: date, end: date) -> tuple[int, int]:
-    revenue, count = (
+def _revenue(db: Session, gym_id: int, start: date, end: date, branch_id: int | None = None) -> tuple[int, int]:
+    query = (
         db.query(func.coalesce(func.sum(Payment.amount_paise), 0), func.count(Payment.id))
         .filter(
             Payment.gym_id == gym_id,
@@ -50,18 +50,47 @@ def _revenue(db: Session, gym_id: int, start: date, end: date) -> tuple[int, int
             Payment.paid_at >= start,
             Payment.paid_at <= end,
         )
-        .one()
     )
+    if branch_id is not None:
+        query = query.filter(Payment.branch_id == branch_id)
+    revenue, count = query.one()
     return int(revenue or 0), int(count or 0)
 
 
-def _expenses(db: Session, gym_id: int, start: date, end: date) -> int:
-    total = (
+def _expenses(db: Session, gym_id: int, start: date, end: date, branch_id: int | None = None) -> int:
+    query = (
         db.query(func.coalesce(func.sum(Expense.amount_paise), 0))
         .filter(Expense.gym_id == gym_id, Expense.spent_on >= start, Expense.spent_on <= end)
-        .scalar()
     )
+    if branch_id is not None:
+        query = query.filter(Expense.branch_id == branch_id)
+    total = query.scalar()
     return int(total or 0)
+
+
+def _branch_aggregates(
+    db: Session,
+    gym_id: int,
+    start: date,
+    end: date,
+) -> list[dict]:
+    """Revenue, expenses, profit per branch for comparison."""
+    from app.models.core import Branch
+
+    branches = db.query(Branch).filter(Branch.gym_id == gym_id).all()
+    result = []
+    for branch in branches:
+        revenue, count = _revenue(db, gym_id, start, end, branch_id=branch.id)
+        expense = _expenses(db, gym_id, start, end, branch_id=branch.id)
+        result.append({
+            "branch_id": branch.id,
+            "branch_name": branch.name,
+            "revenue_paise": revenue,
+            "expense_paise": expense,
+            "profit_paise": revenue - expense,
+            "payments_count": count,
+        })
+    return result
 
 
 @router.post("/expenses", status_code=status.HTTP_201_CREATED)
@@ -111,17 +140,35 @@ def list_expenses(
 
 
 @router.get("/dashboard/daily")
-def daily_dashboard(
+def daily_dashboard_branch(
     current_user: Annotated[User, Depends(get_current_user)],
     _role: OwnerAdmin,
     db: Annotated[Session, Depends(get_db)],
     on_date: date | None = None,
+    branch_id: int | None = None,
 ):
+    """Daily dashboard with optional branch filter.
+
+    - Owner/admin: sees all branches if branch_id not provided,
+      or specific branch if branch_id provided.
+    - Non-owner staff: automatically scoped to their assigned branch.
+    """
     target = on_date or date.today()
-    revenue, count = _revenue(db, current_user.gym_id, target, target)
-    expense = _expenses(db, current_user.gym_id, target, target)
+
+    # If no branch_id provided and user is not owner, use their assigned branch
+    if branch_id is None and current_user.branch_id is not None:
+        branch_id = current_user.branch_id
+
+    # For non-owner users, verify they have access to this branch
+    if branch_id is not None and current_user.branch_id is not None:
+        from app.core.rbac import check_branch_access
+        check_branch_access(current_user, branch_id)
+
+    revenue, count = _revenue(db, current_user.gym_id, target, target, branch_id=branch_id)
+    expense = _expenses(db, current_user.gym_id, target, target, branch_id=branch_id)
     return {
         "on_date": target.isoformat(),
+        "branch_id": branch_id,
         "revenue_paise": revenue,
         "expense_paise": expense,
         "profit_paise": revenue - expense,
@@ -130,23 +177,68 @@ def daily_dashboard(
 
 
 @router.get("/dashboard/summary")
-def summary_dashboard(
+def summary_dashboard_branch(
     current_user: Annotated[User, Depends(get_current_user)],
     _role: OwnerAdmin,
     db: Annotated[Session, Depends(get_db)],
     from_date: date,
     to_date: date,
+    branch_id: int | None = None,
 ):
     if to_date < from_date:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="to_date must be on/after from_date")
-    revenue, count = _revenue(db, current_user.gym_id, from_date, to_date)
-    expense = _expenses(db, current_user.gym_id, from_date, to_date)
+
+    # If no branch_id provided and user is not owner, use their assigned branch
+    if branch_id is None and current_user.branch_id is not None:
+        branch_id = current_user.branch_id
+
+    # For non-owner users, verify they have access to this branch
+    if branch_id is not None and current_user.branch_id is not None:
+        from app.core.rbac import check_branch_access
+        check_branch_access(current_user, branch_id)
+
+    revenue, count = _revenue(db, current_user.gym_id, from_date, to_date, branch_id=branch_id)
+    expense = _expenses(db, current_user.gym_id, from_date, to_date, branch_id=branch_id)
     return {
         "from_date": from_date.isoformat(),
         "to_date": to_date.isoformat(),
+        "branch_id": branch_id,
         "revenue_paise": revenue,
         "expense_paise": expense,
         "profit_paise": revenue - expense,
         "payments_count": count,
     }
 
+
+@router.get("/dashboard/branch-comparison")
+def branch_comparison(
+    current_user: Annotated[User, Depends(get_current_user)],
+    _role: OwnerAdmin,
+    db: Annotated[Session, Depends(get_db)],
+    from_date: date,
+    to_date: date,
+):
+    """Cross-branch comparison for owner/admin. Returns per-branch aggregates.
+
+    Owner can see all branches. Non-owner staff will be denied (403).
+    """
+    if to_date < from_date:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="to_date must be on/after from_date")
+
+    branches = _branch_aggregates(db, current_user.gym_id, from_date, to_date)
+    # Totals
+    total_revenue = sum(b["revenue_paise"] for b in branches)
+    total_expense = sum(b["expense_paise"] for b in branches)
+    total_profit = total_revenue - total_expense
+    total_payments = sum(b["payments_count"] for b in branches)
+    return {
+        "from_date": from_date.isoformat(),
+        "to_date": to_date.isoformat(),
+        "branches": branches,
+        "totals": {
+            "revenue_paise": total_revenue,
+            "expense_paise": total_expense,
+            "profit_paise": total_profit,
+            "payments_count": total_payments,
+        },
+    }

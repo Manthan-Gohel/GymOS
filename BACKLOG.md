@@ -77,9 +77,9 @@ Status legend: `[ ]` todo, `[x]` done, `[~]` blocked
 
 ## Phase 3: Multi-branch
 
-- [ ] P3-01 | Owner dashboard across branches with comparison | Cross-branch aggregations for revenue/expense and key metrics with branch comparison views; tenant isolation enforced; tests | P2-08, P1-21
-- [ ] P3-02 | Branch-level permissions | Permissions and data access scoped/enforced by branch per role rules; owner can view across branches as permitted; tests for allowed/denied access | P3-01, P0-09
-- [ ] P3-03 | Phase 3 integration, docs, and release readiness | Multi-branch features integrated, docs/ADRs updated, full suite green, release summary | P3-02
+- [x] P3-01 | Owner dashboard across branches with comparison | Cross-branch aggregations for revenue/expense and key metrics with branch comparison views; tenant isolation enforced; tests | P2-08, P1-21
+- [x] P3-02 | Branch-level permissions | Permissions and data access scoped/enforced by branch per role rules; owner can view across branches as permitted; tests for allowed/denied access | P3-01, P0-09
+- [x] P3-03 | Phase 3 integration, docs, and release readiness, docs, and release readiness | Multi-branch features integrated, docs/ADRs updated, full suite green, release summary | P3-02
 
 ## Maintenance (recurring every 5 iterations)
 - [ ] MNT-01 | Refactor, dead-code cleanup, docs refresh, backlog reprioritization | Remove dead code, improve structure without behavior change, update README/API docs, re-prioritize backlog and record reasons in DECISIONS.md; tests remain green | recurring
