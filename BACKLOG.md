@@ -54,7 +54,7 @@ Status legend: `[ ]` todo, `[x]` done, `[~]` blocked
 ### 1.7 CRM, complaints, equipment
 - [x] P1-15 | Leads/enquiries CRM (manual) | Lead capture, status, trial booking, notes; no automated follow-up sequences; tests | P0-15
 - [x] P1-16 | Complaint log (manual) | Complaint intake, status, assignee, resolution notes; tests | P0-15
-- [ ] P1-17 | Equipment registry and manual maintenance schedules/reminders | Equipment records, manual maintenance schedules, reminder tasks/messages via mock with logging; no predictive maintenance; tests | P0-15, P0-14, P1-09
+- [x] P1-17 | Equipment registry and manual maintenance schedules/reminders | Equipment records, manual maintenance schedules, reminder tasks/messages via mock with logging; no predictive maintenance; tests | P0-15, P0-14, P1-09
 
 ### 1.8 Staff panels (Owner/Admin/Reception/Trainer)
 - [ ] P1-18 | Frontend scaffold and auth shell | React+Vite+TS+Tailwind app with routing, auth/login against backend, role-aware navigation for owner/admin/reception/trainer only; build/test/lint setup | P0-15

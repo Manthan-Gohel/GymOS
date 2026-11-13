@@ -235,3 +235,10 @@
 - Tests: backend `python -m pytest` -> 62 passed (exit 0). `ruff check .` exit 0, `mypy app` -> Success: no issues found in 56 source files.
 - Status: Done, committed.
 - Known issues: No SLA/escalation timers or notifications; complaint resolution does not notify the member; no file attachments.
+
+## Iteration 33
+- Task: P1-17 | Equipment registry and manual maintenance schedules/reminders
+- Changes: Added `Equipment`/`MaintenanceSchedule` models + migration `1cdb7fe0e6ec_add_equipment_and_maintenance.py`; owner/admin equipment CRUD-ish endpoints (create/list/get/update status), maintenance scheduling per equipment, due list (defaults to scheduled), completion that optionally spawns the next occurrence by `interval_days`, and `POST /maintenance/run-reminders`. Added `send_logged_message` for non-member internal notices and `run_maintenance_reminders` (3-day window, per-day idempotency, logged via mock provider); Celery beat task `run_maintenance_reminders_task`. Added `backend/tests/test_p1_17_equipment.py`.
+- Tests: backend `python -m pytest` -> 66 passed (exit 0). `ruff check .` exit 0, `mypy app` -> Success: no issues found in 59 source files.
+- Status: Done, committed.
+- Known issues: Reminders target an internal `gym-staff` pseudo-recipient (no staff phone model); no predictive maintenance or parts inventory; no maintenance cost tracking.

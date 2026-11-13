@@ -11,6 +11,7 @@ from app.db.base import Base
 from app.models import audit as _audit  # noqa: F401
 from app.models import complaint as _complaint  # noqa: F401
 from app.models import core as _models  # noqa: F401
+from app.models import equipment as _equipment  # noqa: F401
 from app.models import expense as _expense  # noqa: F401
 from app.models import invoice as _invoice  # noqa: F401
 from app.models import lead as _lead  # noqa: F401

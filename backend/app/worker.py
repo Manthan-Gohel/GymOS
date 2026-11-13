@@ -24,6 +24,10 @@ celery_app.conf.update(
             "task": "app.worker.expire_all_gyms_task",
             "schedule": 60 * 60 * 24,
         },
+        "daily-maintenance-reminders": {
+            "task": "app.worker.run_maintenance_reminders_task",
+            "schedule": 60 * 60 * 24,
+        },
     },
 )
 
@@ -84,3 +88,17 @@ def expire_all_gyms_task() -> dict:
             expired += expire_due_memberships(db, gym_id=gym.gym_id, today=date.today())
         db.commit()
     return {"expired": expired}
+
+@celery_app.task(name="app.worker.run_maintenance_reminders_task")
+def run_maintenance_reminders_task() -> dict:
+    """Daily beat task: maintenance reminders for every tenant."""
+    from app.db.session import SessionLocal
+    from app.models.core import Gym
+    from app.services.maintenance import run_maintenance_reminders
+
+    sent = 0
+    with SessionLocal() as db:
+        for gym in db.query(Gym).all():
+            sent += sum(1 for log in run_maintenance_reminders(db, gym_id=gym.gym_id) if log.status == "sent")
+        db.commit()
+    return {"sent": sent}

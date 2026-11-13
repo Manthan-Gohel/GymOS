@@ -2,6 +2,7 @@ from fastapi import FastAPI
 
 from app.api.routes.auth import router as auth_router
 from app.api.routes.complaints import router as complaints_router
+from app.api.routes.equipment import router as equipment_router
 from app.api.routes.finance import router as finance_router
 from app.api.routes.invoices import router as invoices_router
 from app.api.routes.leads import router as leads_router
@@ -32,6 +33,7 @@ app.include_router(staff_router)
 app.include_router(finance_router)
 app.include_router(leads_router)
 app.include_router(complaints_router)
+app.include_router(equipment_router)
 
 
 @app.get("/health")

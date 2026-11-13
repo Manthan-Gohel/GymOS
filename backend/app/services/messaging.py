@@ -146,3 +146,46 @@ def send_logged_template(
     db.add(log)
     db.flush()
     return log
+
+def send_logged_message(
+    db: Session,
+    *,
+    gym_id: int,
+    branch_id: int,
+    phone: str,
+    body: str,
+    kind: str = "internal_notice",
+    why: str | None = None,
+    template_name: str | None = None,
+    provider: MessagingProvider | None = None,
+) -> OutboundMessage:
+    """Send a non-member/internal notice through the provider and log the attempt."""
+    provider = provider or get_messaging_provider()
+    try:
+        result = provider.send_message(
+            to=phone, body=body, who="system", what=kind, why=why, template_name=template_name
+        )
+        status_value = "sent"
+        error = None
+        provider_name = result.get("provider", "unknown")
+    except Exception as exc:  # transport errors must be auditable, not silent
+        status_value = "failed"
+        error = str(exc)
+        provider_name = "unknown"
+    log = OutboundMessage(
+        gym_id=gym_id,
+        branch_id=branch_id,
+        member_id=None,
+        phone=phone,
+        template_name=template_name,
+        body=body,
+        kind=kind,
+        status=status_value,
+        provider=provider_name,
+        who="system",
+        why=why,
+        error=error,
+    )
+    db.add(log)
+    db.flush()
+    return log
