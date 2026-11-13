@@ -17,6 +17,7 @@ from app.models import message as _message  # noqa: F401
 from app.models import payment as _payment  # noqa: F401
 from app.models import plan as _plan  # noqa: F401
 from app.models import session as _session  # noqa: F401
+from app.models import staff as _staff  # noqa: F401
 from app.models import template as _template  # noqa: F401
 from app.models import trainer as _trainer  # noqa: F401  # ensure models are imported/register metadata
 

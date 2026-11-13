@@ -48,7 +48,7 @@ Status legend: `[ ]` todo, `[x]` done, `[~]` blocked
 - [x] P1-12 | Session booking and trainer attendance | Book/cancel/reschedule sessions, track trainer attendance; conflict/availability checks; tests | P1-11
 
 ### 1.6 Staff, expenses, dashboard
-- [ ] P1-13 | Staff attendance (manual by admin) and payroll records | Admin records staff attendance manually; payroll record structures (calculation-ready, not disbursement); tests | P0-15
+- [x] P1-13 | Staff attendance (manual by admin) and payroll records | Admin records staff attendance manually; payroll record structures (calculation-ready, not disbursement); tests | P0-15
 - [ ] P1-14 | Expenses and daily revenue/expense/profit dashboard API | Expense tracking and aggregated metrics endpoints for daily revenue/expense/profit; tests for calculations | P1-06, P1-13
 
 ### 1.7 CRM, complaints, equipment

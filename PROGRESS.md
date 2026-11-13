@@ -207,3 +207,10 @@
 - Tests: backend `python -m pytest` -> 54 passed (exit 0). `ruff check .` exit 0, `mypy app` -> Success: no issues found in 48 source files.
 - Status: Done, committed.
 - Known issues: Sessions use naive local datetimes (no timezone conversion); availability is weekly recurring without exceptions; no calendar feed/notifications; attendance is a single check-in/out pair per session.
+
+## Iteration 29
+- Task: P1-13 | Staff attendance (manual by admin) and payroll records
+- Changes: Added `StaffAttendance`/`PayrollRecord` models + migration `b2816c717694_add_staff_attendance_and_payroll.py`; owner/admin-only `POST/GET /staff-attendance` (duplicate day 409, time-order validation, month filter) and `POST/GET /payroll` + `POST /payroll/{id}/finalize` (net = base + bonus - deductions, one record per user/month, draft->finalized). Added `backend/tests/test_p1_13_staff.py`.
+- Tests: backend `python -m pytest` -> 56 passed (exit 0). `ruff check .` exit 0, `mypy app` -> Success: no issues found in 50 source files.
+- Status: Done, committed.
+- Known issues: No payroll disbursement/payslips/tax (calculation-ready records only, as scoped); no attendance edit/delete; attendance is manual only.
