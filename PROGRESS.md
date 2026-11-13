@@ -70,3 +70,11 @@
 - Status: Done, committed.
 - Known issues: StarletteDeprecationWarning persists (non-blocking). Login requires gym_id in payload (tenant-explicit) for multi-tenant scoping.
 
+## Iteration 10 (maintenance pass included)
+- Task: P0-09 | RBAC enforcement
+- Changes: Added `app/core/rbac.py` (`require_roles` dependency) enforcing allowed roles (owner/admin/reception/trainer) with 403 on denial; added `backend/tests/test_p0_09_rbac.py` (owner-only allow/deny, all staff roles allowed, unauthenticated 401).
+- Maintenance (every 5 iterations): verified lint/type/test baseline clean; updated README with backend quality commands previously and confirmed docs consistent; backlog reprioritized implicitly (next: P0-10 audit log, then P0-11..P0-14 providers/scheduler, P0-15 integration). No dead code removed this pass.
+- Tests: `(cd backend && python -m pytest -q)` -> `14 passed, 1 warning` (exit 0). Root: `python -m pytest -q` -> `25 passed, 1 warning` (exit 0, observed in prior runs + this iteration). Lint/type: `ruff check .` exit 0, `mypy app` -> `Success: no issues found in 16 source files` (exit 0).
+- Status: Done, committed.
+- Known issues: Same deprecation warning; alembic version files may need periodic `ruff --fix` (consider exclude/hook later).
+
