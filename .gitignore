@@ -34,5 +34,10 @@ Thumbs.db
 *.log
 infra/*.local.yml
 
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+
 # Alembic (keep versions tracked)
 
