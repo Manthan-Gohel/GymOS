@@ -78,3 +78,10 @@
 - Status: Done, committed.
 - Known issues: Same deprecation warning; alembic version files may need periodic `ruff --fix` (consider exclude/hook later).
 
+## Iteration 11
+- Task: P0-10 | Audit log foundation
+- Changes: Added `AuditLog` model (`audit_logs` with actor/tenant/action/entity/timestamp/metadata/why), `app/services/audit.py` (`write_audit_log`), model/env registration, migration `681fa42340de_add_audit_logs.py`; added `backend/tests/test_p0_10_audit.py` (note: test file was committed early in iteration 10 commit but implemented/fixed this iteration).
+- Tests: `(cd backend && python -m pytest -q)` -> `15 passed, 1 warning` (exit 0). Root: `python -m pytest -q` -> `26 passed, 1 warning in 6.49s` (exit 0). Lint/type: `ruff check .` exit 0 (after fix), `mypy app` -> `Success: no issues found in 19 source files` (exit 0).
+- Status: Done, committed.
+- Known issues: Audit `metadata` stored as JSON column (`metadata_json` attribute) for SQLite/Postgres compatibility.
+
