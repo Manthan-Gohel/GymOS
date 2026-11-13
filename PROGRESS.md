@@ -184,3 +184,11 @@
 - Tests: backend `python -m pytest` -> 47 passed, 1 warning (exit 0). `ruff check .` exit 0, `mypy app` -> Success: no issues found in 42 source files.
 - Status: Done, committed.
 - Known issues: Logs are outbound-only (inbound arrives P2-01); no retry/backoff for failed sends; openWA delivery receipts unavailable until BLK-001 clears.
+
+## Iteration 26 (maintenance pass included)
+- Task: P1-10 | Automated reminders (welcome, expiry 7/3/1, payment due)
+- Changes: Added `app/services/reminders.py` (template-driven welcome on start date, expiry at 7/3/1 days, payment due for issued/partial invoices; per-day idempotency via `why` keys; opt-out handled by logged-send service), `POST /reminders/run` (owner/admin, on-demand with date override), and Celery `run_reminders_task`. Added `backend/tests/test_p1_10_reminders.py` (send once, opt-out blocked, API run + idempotency).
+- Maintenance (every 5 iterations): full lint/type/test re-verified; reminder idempotency keyed by date+entity; backlog next is P1-11 trainers. No dead code removed.
+- Tests: backend `python -m pytest` -> 49 passed, 1 warning (exit 0). `ruff check .` exit 0, `mypy app` -> Success: no issues found in 44 source files. No schema change.
+- Status: Done, committed.
+- Known issues: Celery beat schedule not yet configured for daily runs (task callable/on-demand endpoint works); reminders require templates named `welcome`/`expiry_reminder`/`payment_due`; openWA delivery remains mocked (BLK-001).
