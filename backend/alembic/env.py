@@ -13,6 +13,7 @@ from app.models import core as _models  # noqa: F401
 from app.models import invoice as _invoice  # noqa: F401
 from app.models import member as _member  # noqa: F401
 from app.models import membership as _membership  # noqa: F401
+from app.models import message as _message  # noqa: F401
 from app.models import payment as _payment  # noqa: F401
 from app.models import plan as _plan  # noqa: F401
 from app.models import template as _template  # noqa: F401  # ensure models are imported/register metadata

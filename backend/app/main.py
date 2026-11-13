@@ -5,6 +5,7 @@ from app.api.routes.invoices import router as invoices_router
 from app.api.routes.members import router as members_router
 from app.api.routes.memberships import router as memberships_router
 from app.api.routes.message_templates import router as message_templates_router
+from app.api.routes.messages import router as messages_router
 from app.api.routes.payments import router as payments_router
 from app.api.routes.plans import router as plans_router
 
@@ -16,6 +17,7 @@ app.include_router(memberships_router)
 app.include_router(invoices_router)
 app.include_router(payments_router)
 app.include_router(message_templates_router)
+app.include_router(messages_router)
 
 
 @app.get("/health")
