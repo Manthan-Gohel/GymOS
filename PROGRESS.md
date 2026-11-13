@@ -85,3 +85,10 @@
 - Status: Done, committed.
 - Known issues: Audit `metadata` stored as JSON column (`metadata_json` attribute) for SQLite/Postgres compatibility.
 
+## Iteration 12
+- Task: P0-11 | Provider interface: messaging + mock
+- Changes: Added `app/providers/messaging.py` with `MessagingProvider` protocol, `MockMessagingProvider` (stores sent template/message records with audit payload who/what/why/template), and `get_messaging_provider()` defaulting to mock; added `backend/tests/test_p0_11_messaging_provider.py`.
+- Tests: `(cd backend && python -m pytest -q)` -> `17 passed, 1 warning` (exit 0). Lint/type: `ruff check .` exit 0, `mypy app` -> `Success: no issues found in 21 source files` (exit 0).
+- Status: Done, committed.
+- Known issues: Real WhatsApp provider raises NotImplementedError without credentials (BLK-001); mock only.
+
