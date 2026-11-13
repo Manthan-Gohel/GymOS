@@ -73,7 +73,7 @@ Status legend: `[ ]` todo, `[x]` done, `[~]` blocked
 - [x] P2-05 | Human handoff and staff inbox (bot pause/resume) | Escalation creates handoff, notifies/stores in staff inbox, bot paused while staff reply and resumable; tests for pause/resume and handoff flow | P2-03, P1-18
 - [x] P2-06 | Guardrails, rate limits, and conversation audit | Escalation keywords (medical/health/refunds/complaints/uncertainty) force handoff; per-number rate limits; full conversation and outbound reply audit log (who/what/why/template when applicable); tests | P2-05, P1-09
 - [x] P2-07 | Chatbot eval set | Eval tests with sample questions and expected grounded answers/handoffs covering timings, fees, plans, trainers, location, escalation cases, and LLM-down fallback; all pass | P2-06, P2-04
-- [ ] P2-08 | Phase 2 integration and docs | Chatbot end-to-end with mock webhook/messaging/LLM, grounded answers, handoff/inbox, guardrails and audit verified; docs/API updated; full suite green | P2-07
+- [x] P2-08 | Phase 2 integration and docs | Chatbot end-to-end with mock webhook/messaging/LLM, grounded answers, handoff/inbox, guardrails and audit verified; docs/API updated; full suite green | P2-07
 
 ## Phase 3: Multi-branch
 

@@ -12,6 +12,8 @@ from app.core.rbac import require_roles
 from app.db.session import get_db
 from app.models.conversation import Conversation, InboundMessage
 from app.models.core import Gym, User
+from app.services.chatbot import run_chatbot
+from app.services.messaging import send_logged_message
 
 router = APIRouter(prefix="/whatsapp", tags=["whatsapp"])
 
@@ -92,7 +94,39 @@ async def inbound_webhook(
     db.add(msg)
     db.commit()
 
-    return {"status": "accepted", "conversation_id": conv.id, "message_id": msg.id}
+    # Process with chatbot if bot is not paused
+    if not conv.bot_paused:
+        decision = run_chatbot(
+            db,
+            gym_id=gym_id,
+            branch_id=branch_id or 1,
+            from_phone=from_phone,
+            inbound_text=body,
+            conversation_id=conv.id,
+        )
+        # Log bot reply
+        send_logged_message(
+            db,
+            gym_id=gym_id,
+            branch_id=branch_id or 1,
+            phone=from_phone,
+            body=decision.reply,
+            kind="chatbot_reply",
+            why=f"conversation:{conv.id}",
+            template_name="chatbot_reply",
+        )
+        conv.last_message_at = __import__("datetime").datetime.now(__import__("datetime").UTC)
+        conv.status = "escalated" if decision.handoff else "active"
+        db.commit()
+        return {
+            "status": "accepted",
+            "conversation_id": conv.id,
+            "message_id": msg.id,
+            "bot_reply": decision.reply,
+            "handoff": decision.handoff,
+        }
+
+    return {"status": "accepted", "conversation_id": conv.id, "message_id": msg.id, "bot_reply": None, "handoff": False}
 
 
 @router.get("/conversations")

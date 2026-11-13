@@ -327,3 +327,9 @@
 - Changes: Added `tests/eval_chatbot.py` with 17 evaluation cases covering: guardrail handoffs (medical, injury, refund, complaint, uncertainty, legal), plan queries, trainer queries, location/timing, membership queries, trial booking, member context inclusion, non-member fallback. Runs as pytest test module with `LLM_ENABLED=false` for deterministic canned replies. Validates handoff triggers, intent detection, and grounded reply content.
 - Tests: backend `python -m pytest tests/eval_chatbot.py -v` -> 17 passed. Full suite 109 passed. `ruff check .` exit 0, `mypy app` -> Success: no issues found in 65 source files.
 - Status: Done, committed.
+
+## Iteration 44
+- Task: P2-08 | Phase 2 integration and docs
+- Changes: Integrated chatbot with WhatsApp webhook (`POST /whatsapp/webhook`) - now calls `run_chatbot()` when `bot_paused=False`, logs bot reply via `send_logged_message()`, updates conversation status. Returns `bot_reply` and `handoff` in webhook response. All backend tests (109), frontend build, and Playwright E2E tests (3/3) pass. Phase 2 complete.
+- Tests: backend `python -m pytest` -> 109 passed. `ruff check .` exit 0, `mypy app` -> Success. Frontend `npm run build` success, `npm run test:e2e` -> 3 passed.
+- Status: Phase 2 complete. Next: Phase 3 (P3-01..P3-03) multi-branch features.
