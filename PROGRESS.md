@@ -315,3 +315,9 @@
 - Changes: Extended chatbot with `_trigger_handoff()` that pauses conversation (`bot_paused=True`, `status=escalated`) and logs staff alert via internal messaging. Added `/whatsapp/inbox` endpoint for staff to see paused/escalated conversations with filters. Added `/whatsapp/conversations/{id}/staff-reply` for staff to reply in paused conversations (bot stays paused). Added `tests/test_p2_05_handoff.py` (6 tests).
 - Tests: backend `python -m pytest` -> 103 passed (exit 0). `ruff check .` exit 0, `mypy app` -> Success: no issues found in 64 source files.
 - Status: Done, committed.
+
+## Iteration 42
+- Task: P2-06 | Guardrails, rate limits, and conversation audit
+- Changes: Added `app/api/routes/whatsapp_guardrails.py` with: `GET /whatsapp/conversations/{id}/audit` for full conversation audit trail (inbound/outbound with who/what/why/template); per-number rate limiting (`check_rate_limit`, in-memory, Redis-ready); `GET/POST /whatsapp/rate-limits/{phone}` for status/reset; `GET /whatsapp/guardrails/test` for admin guardrail testing. Added `tests/test_p2_06_guardrails.py` (4 tests).
+- Tests: backend `python -m pytest` -> 107 passed (exit 0). `ruff check .` exit 0, `mypy app` -> Success: no issues found in 65 source files.
+- Status: Done, committed.

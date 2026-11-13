@@ -18,6 +18,7 @@ from app.api.routes.staff import router as staff_router
 from app.api.routes.trainers import router as trainers_router
 from app.api.routes.users import router as users_router
 from app.api.routes.whatsapp import router as whatsapp_router
+from app.api.routes.whatsapp_guardrails import router as whatsapp_guardrails_router
 
 app = FastAPI(title="GymOS API", version="0.1.0")
 app.include_router(auth_router)
@@ -32,6 +33,7 @@ app.include_router(reminders_router)
 app.include_router(trainers_router)
 app.include_router(users_router)
 app.include_router(whatsapp_router)
+app.include_router(whatsapp_guardrails_router)
 app.include_router(sessions_router)
 app.include_router(staff_router)
 app.include_router(finance_router)
