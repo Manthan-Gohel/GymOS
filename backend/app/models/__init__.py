@@ -1,4 +1,5 @@
 from app.models.audit import AuditLog
+from app.models.complaint import Complaint
 from app.models.core import Branch, Gym, Role, User, UserRole
 from app.models.expense import Expense
 from app.models.invoice import Invoice
@@ -36,5 +37,6 @@ __all__ = [
     "PayrollRecord",
     "Expense",
     "Lead",
+    "Complaint",
 ]
 

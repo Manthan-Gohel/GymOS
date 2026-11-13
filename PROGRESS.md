@@ -228,3 +228,10 @@
 - Tests: backend `python -m pytest` -> 60 passed (exit 0). `ruff check .` exit 0, `mypy app` -> Success: no issues found in 54 source files.
 - Status: Done, committed.
 - Known issues: No lead follow-up automation (explicitly OUT of scope); no lead-to-member conversion record linking; no duplicate-phone detection.
+
+## Iteration 32
+- Task: P1-16 | Complaint log (manual)
+- Changes: Added `Complaint` model + migration `c775e48f3f8e_add_complaints.py`; `POST/GET/GET-by-id/PATCH /complaints` with statuses open/in_progress/resolved/closed, optional member linkage, assignee, resolution notes (required to resolve/close), `?status=` filter, tenant scoping; reception write, all staff read. Added `backend/tests/test_p1_16_complaints.py`.
+- Tests: backend `python -m pytest` -> 62 passed (exit 0). `ruff check .` exit 0, `mypy app` -> Success: no issues found in 56 source files.
+- Status: Done, committed.
+- Known issues: No SLA/escalation timers or notifications; complaint resolution does not notify the member; no file attachments.
