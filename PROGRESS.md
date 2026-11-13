@@ -56,3 +56,10 @@
 - Status: Done, committed.
 - Known issues: SQLite used for migration test speed; Postgres compatibility to be validated in integration/docker flows later.
 
+## Iteration 8
+- Task: P0-07 | Tenant scoping primitives
+- Changes: Added `app/db/tenant.py` (`scoped_query`, `tenant_add`, `assert_tenant_match`, `TenantScopeError`) and `app/db/session.py`; added `backend/tests/test_p0_07_tenant_scope.py`.
+- Tests: `(cd backend && python -m pytest -q)` -> `8 passed, 1 warning` (exit 0). Lint/type: `(cd backend && ruff check .)` exit 0, `(cd backend && mypy app)` -> `Success: no issues found in 10 source files` (exit 0).
+- Status: Done, committed.
+- Known issues: None.
+
