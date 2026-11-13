@@ -156,3 +156,10 @@
 - Status: Done, committed.
 - Known issues: Invoice numbering is simple per-gym sequence; `payment_id` linkage will be exercised in P1-06+. GST logic is configurable/basic (intra CGST/SGST split, inter IGST) and may need jurisdiction-specific refinement.
 
+
+## Iteration 22
+- Task: P1-06 | Payment recording and dues
+- Changes: Added `Payment` model/migration `879200a8a868_add_payments_and_invoice_late_fee.py` (cash/upi/card/mock, amount, reference, status, invoice/membership linkage, recorded_by), `app/services/payments.py` (record_payment, invoice due/paid aggregation, invoice status sync paid/partial/issued, late fee application, member_dues), `POST /payments`, `GET /payments/dues`, `POST /invoices/{id}/late-fee`; added `late_fee_paise` to invoices. Added `backend/tests/test_p1_06_payments.py` (partial->full, overpayment clamp, API flow, invalid method/amount, late fee, cross-tenant block).
+- Tests: backend `python -m pytest -q` -> 39 passed (exit 0). `ruff check .` exit 0, `mypy app` -> Success: no issues found in 37 source files. Migration upgrade/downgrade/upgrade verified on SQLite.
+- Status: Done, committed.
+- Known issues: Payment statuses limited to recorded 'paid' (no provider async states yet); overpayment is accepted but not credited/refunded; late fee is manual per invoice (no aging rules). YouPI-PG remains mock/blocked (BLK-002).

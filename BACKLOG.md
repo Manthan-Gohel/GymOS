@@ -35,7 +35,7 @@ Status legend: `[ ]` todo, `[x]` done, `[~]` blocked
 - [x] P1-05 | Receipts and GST-ready invoices | Invoice/receipt records with GST-relevant fields (configurable), linked to payments/memberships; generation logic; tests for totals/tax fields | P1-04, P0-12
 
 ### 1.3 Payments
-- [ ] P1-06 | Payment recording and dues | Record cash/UPI/card payments via mock/manual modes, partial payments, dues calculation, late fee rules; tests for balances and edge cases | P1-05
+- [x] P1-06 | Payment recording and dues | Record cash/UPI/card payments via mock/manual modes, partial payments, dues calculation, late fee rules; tests for balances and edge cases | P1-05
 - [ ] P1-07 | Payment receipts lookup and status | Issue/lookup receipts, payment status tracking; tests | P1-06
 
 ### 1.4 WhatsApp templated reminders (non-AI)

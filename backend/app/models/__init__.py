@@ -3,6 +3,7 @@ from app.models.core import Branch, Gym, Role, User, UserRole
 from app.models.invoice import Invoice
 from app.models.member import Member
 from app.models.membership import Membership
+from app.models.payment import Payment
 from app.models.plan import MembershipPlan
 
 __all__ = [
@@ -16,4 +17,5 @@ __all__ = [
     "MembershipPlan",
     "Membership",
     "Invoice",
+    "Payment",
 ]

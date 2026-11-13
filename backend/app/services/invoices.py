@@ -5,6 +5,32 @@ from sqlalchemy.orm import Session
 from app.models.invoice import Invoice
 
 
+def invoice_to_dict(inv: Invoice) -> dict:
+    return {
+        "id": inv.id,
+        "gym_id": inv.gym_id,
+        "branch_id": inv.branch_id,
+        "member_id": inv.member_id,
+        "membership_id": inv.membership_id,
+        "payment_id": inv.payment_id,
+        "invoice_number": inv.invoice_number,
+        "status": inv.status,
+        "taxable_value_paise": inv.taxable_value_paise,
+        "gst_rate": inv.gst_rate,
+        "cgst_paise": inv.cgst_paise,
+        "sgst_paise": inv.sgst_paise,
+        "igst_paise": inv.igst_paise,
+        "late_fee_paise": inv.late_fee_paise,
+        "total_paise": inv.total_paise,
+        "currency": inv.currency,
+        "seller_gstin": inv.seller_gstin,
+        "buyer_name": inv.buyer_name,
+        "buyer_gstin": inv.buyer_gstin,
+        "notes": inv.notes,
+        "meta": inv.meta,
+    }
+
+
 def _next_invoice_number(db: Session, gym_id: int) -> str:
     count = db.query(Invoice).filter(Invoice.gym_id == gym_id).count()
     return f"INV-{gym_id}-{count + 1:06d}"

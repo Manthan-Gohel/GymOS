@@ -11,7 +11,8 @@ from app.core.rbac import require_roles
 from app.db.session import get_db
 from app.models.core import User
 from app.models.invoice import Invoice
-from app.services.invoices import generate_invoice
+from app.services.invoices import generate_invoice, invoice_to_dict
+from app.services.payments import apply_late_fee, invoice_due_paise
 
 router = APIRouter(prefix="/invoices", tags=["invoices"])
 
@@ -34,29 +35,15 @@ class InvoiceCreate(BaseModel):
     meta: dict[str, Any] | None = None
 
 
-def _to_dict(inv: Invoice) -> dict:
-    return {
-        "id": inv.id,
-        "gym_id": inv.gym_id,
-        "branch_id": inv.branch_id,
-        "member_id": inv.member_id,
-        "membership_id": inv.membership_id,
-        "payment_id": inv.payment_id,
-        "invoice_number": inv.invoice_number,
-        "status": inv.status,
-        "taxable_value_paise": inv.taxable_value_paise,
-        "gst_rate": inv.gst_rate,
-        "cgst_paise": inv.cgst_paise,
-        "sgst_paise": inv.sgst_paise,
-        "igst_paise": inv.igst_paise,
-        "total_paise": inv.total_paise,
-        "currency": inv.currency,
-        "seller_gstin": inv.seller_gstin,
-        "buyer_name": inv.buyer_name,
-        "buyer_gstin": inv.buyer_gstin,
-        "notes": inv.notes,
-        "meta": inv.meta,
-    }
+class LateFeeRequest(BaseModel):
+    late_fee_paise: int = Field(..., ge=0)
+
+
+def _get_invoice(db: Session, gym_id: int, invoice_id: int) -> Invoice:
+    inv = db.query(Invoice).filter(Invoice.id == invoice_id, Invoice.gym_id == gym_id).first()
+    if not inv:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invoice not found")
+    return inv
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
@@ -74,7 +61,7 @@ def create_invoice(
     )
     db.commit()
     db.refresh(inv)
-    return _to_dict(inv)
+    return invoice_to_dict(inv)
 
 
 @router.get("/{invoice_id}")
@@ -84,7 +71,19 @@ def get_invoice(
     _role: StaffRead,
     db: Annotated[Session, Depends(get_db)],
 ):
-    inv = db.query(Invoice).filter(Invoice.id == invoice_id, Invoice.gym_id == current_user.gym_id).first()
-    if not inv:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invoice not found")
-    return _to_dict(inv)
+    return invoice_to_dict(_get_invoice(db, current_user.gym_id, invoice_id))
+
+
+@router.post("/{invoice_id}/late-fee")
+def set_late_fee(
+    invoice_id: int,
+    payload: LateFeeRequest,
+    current_user: Annotated[User, Depends(get_current_user)],
+    _role: StaffWrite,
+    db: Annotated[Session, Depends(get_db)],
+):
+    inv = _get_invoice(db, current_user.gym_id, invoice_id)
+    apply_late_fee(db, gym_id=current_user.gym_id, invoice_id=inv.id, late_fee_paise=payload.late_fee_paise)
+    db.commit()
+    db.refresh(inv)
+    return {**invoice_to_dict(inv), "total_due_paise": invoice_due_paise(db, inv)}

@@ -27,6 +27,7 @@ class Invoice(Base):
     cgst_paise: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     sgst_paise: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     igst_paise: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    late_fee_paise: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     total_paise: Mapped[int] = mapped_column(Integer, nullable=False)
     currency: Mapped[str] = mapped_column(String(10), nullable=False, default="INR")
 
