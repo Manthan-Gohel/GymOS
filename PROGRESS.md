@@ -49,3 +49,10 @@
 - Status: Done, committed.
 - Known issues: Same StarletteDeprecationWarning (non-blocking).
 
+## Iteration 7
+- Task: P0-06 | Multi-tenant core schema and migrations
+- Changes: Added `app/core/config.py`, `app/db/base.py`, core tenant models (`gyms`, `branches`, `users`, `roles`) with `gym_id`/`branch_id` on all tables; initialized Alembic and configured `alembic/env.py` + `alembic.ini`; generated and applied-ready migration `a5fe0e8cbbca_core_tenant_schema.py`; added `backend/tests/test_p0_06_schema.py`.
+- Tests: `(cd backend && python -m pytest -q)` -> `5 passed, 1 warning` (exit 0). Root: `python -m pytest -q` -> `16 passed, 1 warning in 2.09s` (exit 0). Lint/type: `(cd backend && ruff check .)` exit 0, `(cd backend && mypy app)` -> `Success: no issues found in 8 source files` (exit 0). Migration test applies to fresh SQLite DB via Alembic upgrade head.
+- Status: Done, committed.
+- Known issues: SQLite used for migration test speed; Postgres compatibility to be validated in integration/docker flows later.
+
