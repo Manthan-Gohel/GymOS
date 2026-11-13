@@ -141,3 +141,11 @@
 - Status: Done, committed.
 - Known issues: Plan branch defaults to user's branch (or 0); plan deletion not implemented (use is_active). StarletteDeprecationWarning and bcrypt/passlib log warning persist (non-failing).
 
+## Iteration 20 (maintenance pass included)
+- Task: P1-04 | Membership purchase, freeze, upgrade, expiry engine
+- Changes: Added `Membership` model/migration `d2a893468c05_add_memberships.py` (active/frozen/expired/upgraded states, freeze/upgrade tracking), `app/services/memberships.py` (`expire_due_memberships`), and routes for purchase, get, freeze/unfreeze (extends end_date by frozen days), upgrade (marks old upgraded, creates new), and on-demand expiry run; wired router in app. Added `backend/tests/test_p1_04_memberships.py`.
+- Maintenance (every 5 iterations): re-verified full lint/type/test baseline, ruff-fixed generated migration, backlog/state consistent (next: P1-05 receipts/GST-ready invoices, then P1-06 payments/dues). No dead code removed.
+- Tests: `(cd backend && python -m pytest -q)` -> `32 passed, 1 warning` (exit 0). Root: `python -m pytest -q` -> `43 passed, 1 warning` (exit 0). Lint/type: `ruff check .` exit 0, `mypy app` -> `Success: no issues found in 31 source files` (exit 0).
+- Status: Done, committed.
+- Known issues: Expiry engine callable on-demand/service-level (Celery schedule wiring for periodic expiry can be added in reminder/scheduler tasks later); upgrade starts new plan duration from provided start date (proration rules not implemented). Same warnings as before.
+

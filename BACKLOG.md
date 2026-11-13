@@ -31,7 +31,7 @@ Status legend: `[ ]` todo, `[x]` done, `[~]` blocked
 
 ### 1.2 Plans & memberships
 - [x] P1-03 | Membership plans CRUD | Plan entity (name, duration, price, terms metadata) scoped to gym/branch; CRUD endpoints with RBAC; tests | P0-15
-- [ ] P1-04 | Membership purchase, freeze, upgrade, expiry engine | Membership lifecycle (active/frozen/expired/upgraded/cancelled as needed), purchase flow, freeze/unfreeze, upgrade rules, expiry calculation; scheduled or on-demand expiry processing; tests for transitions and expiry | P1-03, P0-14
+- [x] P1-04 | Membership purchase, freeze, upgrade, expiry engine | Membership lifecycle (active/frozen/expired/upgraded/cancelled as needed), purchase flow, freeze/unfreeze, upgrade rules, expiry calculation; scheduled or on-demand expiry processing; tests for transitions and expiry | P1-03, P0-14
 - [ ] P1-05 | Receipts and GST-ready invoices | Invoice/receipt records with GST-relevant fields (configurable), linked to payments/memberships; generation logic; tests for totals/tax fields | P1-04, P0-12
 
 ### 1.3 Payments
