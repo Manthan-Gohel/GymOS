@@ -9,6 +9,7 @@ from app.api.routes.messages import router as messages_router
 from app.api.routes.payments import router as payments_router
 from app.api.routes.plans import router as plans_router
 from app.api.routes.reminders import router as reminders_router
+from app.api.routes.trainers import router as trainers_router
 
 app = FastAPI(title="GymOS API", version="0.1.0")
 app.include_router(auth_router)
@@ -20,8 +21,10 @@ app.include_router(payments_router)
 app.include_router(message_templates_router)
 app.include_router(messages_router)
 app.include_router(reminders_router)
+app.include_router(trainers_router)
 
 
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
+

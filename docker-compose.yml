@@ -63,5 +63,23 @@ services:
       redis:
         condition: service_healthy
 
+  beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: celery -A app.worker.celery_app beat --loglevel=info
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://gymos:gymos@db:5432/gymos}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+    volumes:
+      - ./backend:/app
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
 volumes:
   postgres_data:

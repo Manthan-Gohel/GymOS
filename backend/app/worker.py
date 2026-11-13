@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from datetime import date
 
 from celery import Celery
 
@@ -14,6 +15,16 @@ celery_app.conf.update(
     result_serializer="json",
     timezone="UTC",
     enable_utc=True,
+    beat_schedule={
+        "daily-reminders-all-gyms": {
+            "task": "app.worker.run_all_gyms_reminders_task",
+            "schedule": 60 * 60 * 24,
+        },
+        "daily-expiry-all-gyms": {
+            "task": "app.worker.expire_all_gyms_task",
+            "schedule": 60 * 60 * 24,
+        },
+    },
 )
 
 
@@ -26,8 +37,6 @@ def sample_reminder_task(gym_id: int, message: str) -> dict:
 @celery_app.task(name="app.worker.run_reminders_task")
 def run_reminders_task(gym_id: int, today: str | None = None) -> dict:
     """Scheduled reminder batch for one tenant (welcome/expiry/payment due)."""
-    from datetime import date
-
     from app.db.session import SessionLocal
     from app.services.reminders import run_reminders
 
@@ -40,3 +49,38 @@ def run_reminders_task(gym_id: int, today: str | None = None) -> dict:
             "blocked": sum(1 for log in logs if log.status == "blocked"),
             "failed": sum(1 for log in logs if log.status == "failed"),
         }
+
+
+@celery_app.task(name="app.worker.run_all_gyms_reminders_task")
+def run_all_gyms_reminders_task(today: str | None = None) -> dict:
+    """Daily beat task: run reminders for every tenant."""
+    from app.db.session import SessionLocal
+    from app.models.core import Gym
+    from app.services.reminders import run_reminders
+
+    totals = {"sent": 0, "blocked": 0, "failed": 0, "gyms": 0}
+    target = date.fromisoformat(today) if today else None
+    with SessionLocal() as db:
+        for gym in db.query(Gym).all():
+            logs = run_reminders(db, gym_id=gym.gym_id, today=target)
+            totals["sent"] += sum(1 for log in logs if log.status == "sent")
+            totals["blocked"] += sum(1 for log in logs if log.status == "blocked")
+            totals["failed"] += sum(1 for log in logs if log.status == "failed")
+            totals["gyms"] += 1
+        db.commit()
+    return totals
+
+
+@celery_app.task(name="app.worker.expire_all_gyms_task")
+def expire_all_gyms_task() -> dict:
+    """Daily beat task: expire lapsed memberships for every tenant."""
+    from app.db.session import SessionLocal
+    from app.models.core import Gym
+    from app.services.memberships import expire_due_memberships
+
+    expired = 0
+    with SessionLocal() as db:
+        for gym in db.query(Gym).all():
+            expired += expire_due_memberships(db, gym_id=gym.gym_id, today=date.today())
+        db.commit()
+    return {"expired": expired}

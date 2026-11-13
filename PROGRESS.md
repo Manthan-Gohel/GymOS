@@ -192,3 +192,11 @@
 - Tests: backend `python -m pytest` -> 49 passed, 1 warning (exit 0). `ruff check .` exit 0, `mypy app` -> Success: no issues found in 44 source files. No schema change.
 - Status: Done, committed.
 - Known issues: Celery beat schedule not yet configured for daily runs (task callable/on-demand endpoint works); reminders require templates named `welcome`/`expiry_reminder`/`payment_due`; openWA delivery remains mocked (BLK-001).
+
+## Iteration 27
+- Task: P1-11 | Trainer profiles, availability, member assignment
+- Changes: Added `Trainer`/`TrainerAvailability`/`TrainerAssignment` models + migration `2014cf4e09f5_add_trainers_availability_assignments.py`; `POST/GET/PATCH /trainers`, weekly availability add/list/delete with start<end validation, member assign/list/unassign with duplicate (409) and tenant isolation. RBAC: owner/admin write, all staff read. Added `backend/tests/test_p1_11_trainers.py`.
+- Maintenance fixes: added Celery beat schedule + `run_all_gyms_reminders_task` / `expire_all_gyms_task` and a `beat` compose service; excluded generated `alembic/versions` from ruff; filtered the known third-party Starlette testclient deprecation; replaced deprecated 422 constant.
+- Tests: backend `python -m pytest` -> 51 passed (exit 0, warning filtered). `ruff check .` exit 0, `mypy app` -> Success: no issues found in 46 source files.
+- Status: Done, committed.
+- Known issues: Trainer availability is recurring weekly only (no date exceptions); trainer user linkage is optional and not validated against the trainer role yet; assignment has no history/audit beyond is_active.

@@ -44,7 +44,7 @@ Status legend: `[ ]` todo, `[x]` done, `[~]` blocked
 - [x] P1-10 | Automated reminders (welcome, expiry 7/3/1, payment due) | Scheduler/jobs enqueue reminders based on rules; uses messaging mock; respects opt-out and controlled/approved message templates; tests for scheduling and logging | P1-04, P1-06, P1-09, P0-14
 
 ### 1.5 Trainers & sessions
-- [ ] P1-11 | Trainer profiles, availability, member assignment | Trainer entities (staff users/records as appropriate), availability slots, assignment to members; RBAC; tests | P0-15
+- [x] P1-11 | Trainer profiles, availability, member assignment | Trainer entities (staff users/records as appropriate), availability slots, assignment to members; RBAC; tests | P0-15
 - [ ] P1-12 | Session booking and trainer attendance | Book/cancel/reschedule sessions, track trainer attendance; conflict/availability checks; tests | P1-11
 
 ### 1.6 Staff, expenses, dashboard

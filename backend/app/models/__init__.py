@@ -7,6 +7,7 @@ from app.models.message import OutboundMessage
 from app.models.payment import Payment
 from app.models.plan import MembershipPlan
 from app.models.template import MessageTemplate
+from app.models.trainer import Trainer, TrainerAssignment, TrainerAvailability
 
 __all__ = [
     "Gym",
@@ -22,4 +23,8 @@ __all__ = [
     "Payment",
     "MessageTemplate",
     "OutboundMessage",
+    "Trainer",
+    "TrainerAvailability",
+    "TrainerAssignment",
 ]
+
