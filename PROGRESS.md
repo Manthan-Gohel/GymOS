@@ -63,3 +63,10 @@
 - Status: Done, committed.
 - Known issues: None.
 
+## Iteration 9
+- Task: P0-08 | Auth (JWT) and password handling
+- Changes: Added `app/core/security.py` (bcrypt hashing, JWT create/decode), `app/api/deps.py` (Bearer auth + current user with tenant/role resolution), `app/api/routes/auth.py` (`POST /auth/login`, `GET /auth/me`), wired router in `app/main.py`; added `UserRole` model/migration `64d2179d570d_add_user_roles.py`; added `backend/tests/test_p0_08_auth.py`.
+- Tests: `(cd backend && python -m pytest -q)` -> `11 passed, 1 warning` (exit 0). Lint/type: `(cd backend && ruff check .)` exit 0, `(cd backend && mypy app)` -> `Success: no issues found in 15 source files` (exit 0).
+- Status: Done, committed.
+- Known issues: StarletteDeprecationWarning persists (non-blocking). Login requires gym_id in payload (tenant-explicit) for multi-tenant scoping.
+

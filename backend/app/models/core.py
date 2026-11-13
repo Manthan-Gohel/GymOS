@@ -47,3 +47,15 @@ class Role(Base):
     name: Mapped[str] = mapped_column(String(50), nullable=False)  # owner/admin/reception/trainer
 
     __table_args__ = (UniqueConstraint("gym_id", "branch_id", "name", name="uq_roles_scope_name"),)
+
+
+class UserRole(Base):
+    __tablename__ = "user_roles"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    gym_id: Mapped[int] = mapped_column(ForeignKey("gyms.id"), nullable=False, index=True)
+    branch_id: Mapped[int | None] = mapped_column(ForeignKey("branches.id"), nullable=True, index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+    role_id: Mapped[int] = mapped_column(ForeignKey("roles.id"), nullable=False, index=True)
+
+    __table_args__ = (UniqueConstraint("user_id", "role_id", name="uq_user_roles_user_role"),)
