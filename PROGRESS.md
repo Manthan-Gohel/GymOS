@@ -35,3 +35,10 @@
 - Status: State aligned; ready to continue Phase 0.
 - Known issues: Same as prior (Starlette/TestClient deprecation warning; worker app path pending P0-14; Docker runtime not validated).
 
+## Iteration 5
+- Task: P0-04 | CI pipeline (GitHub Actions)
+- Changes: Added `.github/workflows/ci.yml` to run backend lint (ruff), type-check (mypy), and tests (pytest) on push/PR (Python 3.12, `backend` working dir); added `tests/test_p0_04_ci.py`; README already documents GitHub Actions/CI.
+- Tests: `python -m pytest -q` (root, includes backend tests discovery path via run context shown) -> `10 passed, 1 warning in 0.33s` (exit 0). `(cd backend && python -m pytest -q)` -> `2 passed, 1 warning` (exit 0). Same StarletteDeprecationWarning observed. Lint/type commands in CI not executed locally this iteration (P0-05 will establish passing baseline).
+- Status: Done, committed.
+- Known issues: ruff/mypy may not yet pass on full backend until P0-05 baseline/config fixes applied.
+
