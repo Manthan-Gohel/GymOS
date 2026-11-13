@@ -9,7 +9,8 @@ from alembic import context
 from app.core.config import settings
 from app.db.base import Base
 from app.models import audit as _audit  # noqa: F401
-from app.models import core as _models  # noqa: F401  # ensure models are imported/register metadata
+from app.models import core as _models  # noqa: F401
+from app.models import member as _member  # noqa: F401  # ensure models are imported/register metadata
 
 config = context.config
 

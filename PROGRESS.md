@@ -120,3 +120,10 @@
 - Status: State/decision aligned; provider interfaces remain mock-default until real openWA/YouPI-PG setup available.
 - Known issues: openWA is unofficial WhatsApp Web automation (session/ToS/ops risks); YouPI-PG is experimental/self-hosted with reconciliation/compliance considerations; no real integrations configured or claimed.
 
+## Iteration 17
+- Task: P1-01 | Member record model and CRUD
+- Changes: Added `Member` model (`members` with gym_id/branch_id, profile photo ref, KYC fields, emergency contact, health notes, WhatsApp consent/opt-out, active flag), migration `1d371e524076_add_members.py`, and API routes `POST/GET/PATCH /members` with tenant scoping and RBAC (write: owner/admin/reception, read: owner/admin/reception/trainer); added `backend/tests/test_p1_01_members.py`.
+- Tests: `(cd backend && python -m pytest -q)` -> `27 passed, 1 warning` (exit 0). Root: `python -m pytest -q` -> `38 passed, 1 warning in 9.76s` (exit 0). Lint/type: `ruff check .` exit 0, `mypy app` -> `Success: no issues found in 26 source files` (exit 0).
+- Status: Done, committed.
+- Known issues: Member create defaults `branch_id` to current user's branch (or 0 if unset); further branch-assignment rules can be refined in later tasks. Bcrypt/passlib version warning observed in test logs (non-failing).
+
