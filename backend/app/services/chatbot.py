@@ -18,17 +18,17 @@ from app.services.knowledge import (
 )
 
 HANDOFF_KEYWORDS = [
-    "medical", "health", "injury", "pain", "doctor", "physio", "therapy",
+    "medical", "health", "injury", "injured", "pain", "doctor", "physio", "therapy",
     "refund", "money back", "cancel membership", "complaint", "unhappy", "angry",
     "legal", "lawyer", "court", "sue",
     "uncertain", "not sure", "don't know", "idk",
 ]
 
 PLAN_KEYWORDS = ["plan", "price", "cost", "fee", "monthly", "quarterly", "annual", "package", "offer"]
-TRAINER_KEYWORDS = ["trainer", "coach", "session", "class", "timing", "schedule", "availability"]
+TRAINER_KEYWORDS = ["trainer", "coach", "teach", "session", "class", "timing", "schedule", "availability"]
 LOCATION_KEYWORDS = ["where", "location", "address", "branch", "near", "directions"]
 TIMING_KEYWORDS = ["open", "close", "timing", "hours", "when", "time"]
-MEMBERSHIP_KEYWORDS = ["membership", "renew", "freeze", "upgrade", "expir", "active"]
+MEMBERSHIP_KEYWORDS = ["membership", "renew", "freeze", "upgrade", "expir", "active", "plan"]
 TRIAL_KEYWORDS = ["trial", "demo", "try", "visit", "walk in", "walk-in", "book a trial", "schedule trial"]
 
 

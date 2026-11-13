@@ -321,3 +321,9 @@
 - Changes: Added `app/api/routes/whatsapp_guardrails.py` with: `GET /whatsapp/conversations/{id}/audit` for full conversation audit trail (inbound/outbound with who/what/why/template); per-number rate limiting (`check_rate_limit`, in-memory, Redis-ready); `GET/POST /whatsapp/rate-limits/{phone}` for status/reset; `GET /whatsapp/guardrails/test` for admin guardrail testing. Added `tests/test_p2_06_guardrails.py` (4 tests).
 - Tests: backend `python -m pytest` -> 107 passed (exit 0). `ruff check .` exit 0, `mypy app` -> Success: no issues found in 65 source files.
 - Status: Done, committed.
+
+## Iteration 43
+- Task: P2-07 | Chatbot eval set
+- Changes: Added `tests/eval_chatbot.py` with 17 evaluation cases covering: guardrail handoffs (medical, injury, refund, complaint, uncertainty, legal), plan queries, trainer queries, location/timing, membership queries, trial booking, member context inclusion, non-member fallback. Runs as pytest test module with `LLM_ENABLED=false` for deterministic canned replies. Validates handoff triggers, intent detection, and grounded reply content.
+- Tests: backend `python -m pytest tests/eval_chatbot.py -v` -> 17 passed. Full suite 109 passed. `ruff check .` exit 0, `mypy app` -> Success: no issues found in 65 source files.
+- Status: Done, committed.
