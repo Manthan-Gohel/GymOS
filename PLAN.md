@@ -12,10 +12,11 @@ Owner-side Gym Operating System for gyms in India, used by owner and staff only.
 - Frontend: React + Vite + TypeScript + Tailwind (Owner, Admin, Reception, Trainer panels)
 - Auth: JWT + RBAC (roles: owner, admin, reception, trainer)
 - Multi-tenant from day one: every table has `gym_id` and `branch_id`; all queries tenant-scoped
-- Messaging: WhatsApp Business Cloud API behind a provider interface (mock for dev/tests)
-- Payments: Razorpay/UPI behind a provider interface (mock for dev/tests)
-- AI: provider-agnostic LLM interface, used ONLY by the WhatsApp chatbot; falls back to canned replies + human handoff if the LLM is down
+- Messaging: **openWA** (wa-automate, https://github.com/open-wa/wa-automate-nodejs) behind a provider interface (mock for dev/tests); real use requires openWA session/service setup
+- Payments: **YouPI-PG** (https://github.com/youpi-pg/YouPI-PG) behind a provider interface (mock for dev/tests) + staff-entered cash/card recording; real gateway use requires deployment/setup
+- AI: provider-agnostic LLM interface, used ONLY by the WhatsApp chatbot; falls back to canned replies + human handoff if the LLM is down (unchanged)
 - Tests: pytest + Playwright; CI via GitHub Actions
+- Integration ADRs: `docs/adr/0001-messaging-integration-openwa.md`, `docs/adr/0002-payments-integration-youpi-pg.md`
 
 ## Phases & Milestones
 
@@ -57,9 +58,9 @@ Owner-side Gym Operating System for gyms in India, used by owner and staff only.
 - M3.2 Branch-level permissions
 
 ## Cross-cutting Principles
-- All outbound WhatsApp messages (reminders and chatbot replies) are logged (who/what/why, template used). Respect consent and opt-out (DPDP Act). Only approved WhatsApp templates for business-initiated messages.
+- All outbound WhatsApp messages (reminders and chatbot replies) are logged (who/what/why, template used). Respect consent and opt-out (DPDP Act) and policy-compliant business messaging; use approved/controlled templates where applicable (note: openWA is WhatsApp Web-based, not Cloud API templates; see ADR 0001).
 - Chatbot answers must be strictly grounded in gym's own data (timings, fees, plans, trainers, offers). If unsure or asked about medical/health/refunds/complaints, hand off to staff. Never invent prices or promises.
-- WhatsApp and Razorpay use mocks in dev/tests, marked "needs credentials" in BLOCKERS.md. Never fake real operation.
+- openWA and YouPI-PG integrations use mocks in dev/tests, marked "needs setup/credentials" in BLOCKERS.md. Never fake real operation. LLM/other components remain provider-agnostic with fallback as specified.
 - No hardcoded secrets; `.env` + `.env.example`.
 - One task per iteration, tests first, real results logged.
 - Prefer boring, working code. No feature without a test.

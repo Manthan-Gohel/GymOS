@@ -10,10 +10,11 @@ Owner-side Gym Operating System for gyms in India: tools for owner and staff onl
 - **Backend:** Python 3.12, FastAPI, SQLAlchemy 2 + Alembic, PostgreSQL, Redis, Celery (jobs/schedulers)
 - **Frontend:** React + Vite + TypeScript + Tailwind (Owner, Admin, Reception, Trainer panels)
 - **Auth:** JWT + RBAC (owner, admin, reception, trainer)
-- **Messaging:** WhatsApp Business Cloud API behind provider interface (mock in dev/tests)
-- **Payments:** Razorpay/UPI behind provider interface (mock in dev/tests)
-- **AI:** Provider-agnostic LLM interface used only by the WhatsApp chatbot; falls back to canned replies + human handoff if unavailable
+- **Messaging:** **openWA** (wa-automate) behind provider interface (mock in dev/tests; real requires openWA session/service)
+- **Payments:** **YouPI-PG** behind provider interface (mock in dev/tests) + manual cash/card recording (real gateway requires deployment/setup)
+- **AI:** Provider-agnostic LLM interface used only by the WhatsApp chatbot; falls back to canned replies + human handoff if unavailable (unchanged)
 - **Tests/CI:** pytest + Playwright, GitHub Actions
+- **ADRs:** `docs/adr/0001-messaging-integration-openwa.md`, `docs/adr/0002-payments-integration-youpi-pg.md`
 
 ## Repository layout
 - `backend/` — FastAPI service, domain logic, migrations, workers
@@ -43,7 +44,7 @@ pytest              # tests
 ```
 Root tests: `pytest tests` from repo root. CI runs lint, type-check, and tests on push/PR via GitHub Actions.
 
-> Real integrations (WhatsApp, Razorpay, LLM) use mocks in dev/tests until credentials exist. See `BLOCKERS.md`.
+> Real integrations (openWA WhatsApp, YouPI-PG payments, LLM) use mocks/fallbacks in dev/tests until setup/credentials exist. See `BLOCKERS.md` and ADRs.
 
 ## Foundation status (Phase 0 in progress/complete as per BACKLOG)
 - Multi-tenant core schema + Alembic migrations (`gyms`, `branches`, `users`, `roles`, `user_roles`, `audit_logs`) with `gym_id`/`branch_id`.
@@ -54,6 +55,6 @@ Root tests: `pytest tests` from repo root. CI runs lint, type-check, and tests o
 
 ## Principles
 - Multi-tenant from day one: every table carries `gym_id` and `branch_id`; tenant-scoped queries.
-- All outbound WhatsApp messages logged (who/what/why, template). Respect consent/opt-out (DPDP Act); only approved templates for business-initiated messages.
+- All outbound WhatsApp messages logged (who/what/why, template). Respect consent/opt-out (DPDP Act) and policy-compliant business messaging; use approved/controlled templates where applicable.
 - Chatbot answers grounded in gym data only; escalate on medical/health/refunds/complaints or uncertainty; never invent prices/promises.
 - No feature without a test.

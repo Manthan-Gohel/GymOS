@@ -113,3 +113,10 @@
 - Status: Done, committed. Phase 0 complete.
 - Known issues: StarletteDeprecationWarning (non-blocking); Docker runtime not validated in-session; SQLite used in tests (Postgres integration pending docker/runtime validation); real WhatsApp/Razorpay/LLM blocked by credentials (mocks/fallback in place).
 
+## Iteration 16
+- Task: Integration direction update (user directive)
+- Changes: Adopted **openWA** (wa-automate-nodejs) as WhatsApp integration target and **YouPI-PG** as payments integration target; **LLM and other components remain unchanged**. Added ADRs `docs/adr/0001-messaging-integration-openwa.md` and `docs/adr/0002-payments-integration-youpi-pg.md`; updated `PLAN.md`, `README.md`, `.env.example`, `DECISIONS.md`, `BLOCKERS.md` (BLK-001/BLK-002 revised), and backlog wording for messaging templates/reminders to stay compatible with openWA while preserving consent/opt-out/logging requirements.
+- Tests (regression, no code logic changes): `python -m pytest -q` (root) -> `36 passed, 1 warning` (exit 0). StarletteDeprecationWarning only.
+- Status: State/decision aligned; provider interfaces remain mock-default until real openWA/YouPI-PG setup available.
+- Known issues: openWA is unofficial WhatsApp Web automation (session/ToS/ops risks); YouPI-PG is experimental/self-hosted with reconciliation/compliance considerations; no real integrations configured or claimed.
+
