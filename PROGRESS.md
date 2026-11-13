@@ -42,3 +42,10 @@
 - Status: Done, committed.
 - Known issues: ruff/mypy may not yet pass on full backend until P0-05 baseline/config fixes applied.
 
+## Iteration 6
+- Task: P0-05 | Linting and type-checking baseline
+- Changes: Fixed ruff issues in `backend/tests/test_p0_02_bootstrap.py` (`ruff check . --fix`: import order, `getattr` -> attribute access); updated `README.md` with backend quality commands (ruff/mypy/pytest) and CI note; added `tests/test_p0_05_lint_type.py`.
+- Tests: `python -m pytest -q` (root) -> `13 passed, 1 warning in 1.36s` (exit 0). `(cd backend && python -m pytest -q)` -> `2 passed, 1 warning` (exit 0). Verified passing baseline: `ruff check .` exit 0, `mypy app` exit 0 (`Success: no issues found in 2 source files`).
+- Status: Done, committed.
+- Known issues: Same StarletteDeprecationWarning (non-blocking).
+

@@ -1,6 +1,5 @@
-from pathlib import Path
 import importlib
-
+from pathlib import Path
 
 BACKEND = Path(__file__).resolve().parents[1]
 
@@ -16,7 +15,7 @@ def test_pyproject_has_required_dependencies():
 
 def test_main_exposes_health_endpoint():
     mod = importlib.import_module("app.main")
-    app = getattr(mod, "app")
+    app = mod.app
     # use TestClient from fastapi
     from fastapi.testclient import TestClient
 

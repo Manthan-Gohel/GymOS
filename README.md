@@ -32,8 +32,16 @@ Owner-side Gym Operating System for gyms in India: tools for owner and staff onl
 ### Setup
 1. Copy environment template: `cp .env.example .env` (never commit secrets).
 2. Start the stack: `docker compose up --build`
-3. Backend (local): `cd backend`, create venv, install deps (`pip install -e ".[dev]"` or as configured), then `uvicorn app.main:app --reload`
-4. Run tests: `pytest`
+3. Backend (local): `cd backend`, create venv, install deps (`pip install -e ".[dev]"`), then `uvicorn app.main:app --reload`
+
+### Quality checks (backend)
+```bash
+cd backend
+ruff check .        # lint
+mypy app            # type-check
+pytest              # tests
+```
+Root tests: `pytest tests` from repo root. CI runs lint, type-check, and tests on push/PR via GitHub Actions.
 
 > Real integrations (WhatsApp, Razorpay, LLM) use mocks in dev/tests until credentials exist. See `BLOCKERS.md`.
 
