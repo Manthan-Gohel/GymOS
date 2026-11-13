@@ -99,3 +99,10 @@
 - Status: Done, committed.
 - Known issues: Real Razorpay/UPI provider raises NotImplementedError without credentials (BLK-002); mock only.
 
+## Iteration 14
+- Task: P0-13 | Provider interface: LLM + mock and canned fallback
+- Changes: Added `app/providers/llm.py` with `LLMProvider` protocol, `MockLLMProvider` (chatbot-only mock), `CannedFallbackLLMProvider` (canned reply + human handoff), and `get_llm_provider()` falling back when `LLM_ENABLED` is false/unavailable; added `backend/tests/test_p0_13_llm_provider.py`.
+- Tests: `(cd backend && python -m pytest -q)` -> `22 passed, 1 warning` (exit 0). Lint/type: `ruff check .` exit 0, `mypy app` -> `Success: no issues found in 23 source files` (exit 0).
+- Status: Done, committed.
+- Known issues: Real LLM provider not implemented without credentials (BLK-004); defaults to safe fallback when disabled.
+

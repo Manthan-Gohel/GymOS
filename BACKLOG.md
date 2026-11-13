@@ -19,7 +19,7 @@ Status legend: `[ ]` todo, `[x]` done, `[~]` blocked
 - [x] P0-10 | Audit log foundation | Audit log table records actor, tenant, action, entity, timestamp, metadata/why; helper/service to write audit entries; tests verify audit records created for a sample privileged action | P0-07, P0-08
 - [x] P0-11 | Provider interface: messaging + mock | Messaging provider interface (send template/message) with mock implementation storing sent messages for tests; config selects mock by default; supports audit-friendly payload (who/what/why/template) | P0-02
 - [x] P0-12 | Provider interface: payments + mock | Payments provider interface (record/create/mock payment flow) with mock implementation; config selects mock by default; tests cover basic payment record flow | P0-02
-- [ ] P0-13 | Provider interface: LLM + mock and canned fallback | LLM provider interface used ONLY for WhatsApp chatbot; mock implementation and explicit canned-replies + human-handoff fallback when LLM unavailable; tests show graceful fallback | P0-02
+- [x] P0-13 | Provider interface: LLM + mock and canned fallback | LLM provider interface used ONLY for WhatsApp chatbot; mock implementation and explicit canned-replies + human-handoff fallback when LLM unavailable; tests show graceful fallback | P0-02
 - [ ] P0-14 | Job scheduler for reminders | Celery (or ARQ) worker configured with Redis; task registration and sample scheduled reminder task runs in dev/test mode; tests for task execution path | P0-03
 - [ ] P0-15 | Foundation integration pass and docs | End-to-end smoke: migrations, auth, tenant scoping + RBAC enforced, provider mocks wired; README/docs updated; all P0 tests green | P0-04, P0-05, P0-07, P0-09, P0-10, P0-11, P0-12, P0-13, P0-14
 
