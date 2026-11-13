@@ -62,7 +62,7 @@ Status legend: `[ ]` todo, `[x]` done, `[~]` blocked
 - [x] P1-20 | Admin panel MVP | UI for plans, trainers, staff attendance/payroll records, expenses, equipment/maintenance; RBAC-respected; tests/smoke checks | P1-03, P1-11, P1-13, P1-14, P1-17, P1-18
 - [x] P1-21 | Owner dashboard MVP | UI for daily revenue/expense/profit, dues/expiries overview, key operational summaries; tests/smoke checks | P1-14, P1-18
 - [x] P1-22 | Trainer panel MVP | UI for assigned members, availability, sessions, trainer attendance; tests/smoke checks | P1-12, P1-18
-- [ ] P1-23 | Phase 1 integration, docs, and hardening | End-to-end owner/staff flows pass (member record->plan->payment->reminder via mock->dashboard/CRM/complaints/equipment); docs/API updated; full suite green | P1-10, P1-19, P1-20, P1-21, P1-22
+- [x] P1-23 | Phase 1 integration, docs, and hardening | End-to-end owner/staff flows pass (member record->plan->payment->reminder via mock->dashboard/CRM/complaints/equipment); docs/API updated; full suite green | P1-10, P1-19, P1-20, P1-21, P1-22
 
 ## Phase 2: AI WhatsApp chatbot (only AI feature)
 

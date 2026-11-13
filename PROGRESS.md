@@ -278,3 +278,9 @@
 - Changes: Fixed frontend API client (`api.ts`) to unwrap `{items,total}` lists, match real payment response shape (`PaymentResult`), freeze/unfreeze payloads (`frozen_on`/`unfrozen_on`), and added `ops.ts` types for leads, complaints, equipment, maintenance, trainers, sessions, staff, finance. Updated `ReceptionPanel` with tabs for leads/complaints using new `LeadsBoard`/`ComplaintsBoard` components. Rewrote `AdminPanel` against real endpoints (plans, trainers, staff attendance/payroll, expenses, equipment/maintenance). Rewrote `OwnerDashboard` with live daily/monthly finance summaries, dues, expiries, pipeline. Rewrote `TrainerPanel` with availability, assigned members, today's sessions, attendance check-in (trainer can mark own sessions). Added `/users` list endpoint for staff names, trainer attendance permission fix (trainers can record own sessions). Added `test_users_list.py` and `test_p1_22_trainer_attendance.py`.
 - Tests: backend `python -m pytest` -> 72 passed (exit 0). `ruff check .` exit 0, `mypy app` -> Success: no issues found in 60 source files. Frontend `npm run build` -> success. `npm run test:e2e` -> 3 passed (auth/panels smoke).
 - Status: Done, committed.
+
+## Iteration 36
+- Task: P1-23 | Phase 1 integration, docs, and hardening
+- Changes: Full backend test suite (72 tests) passes with 0 failures. Ruff + mypy clean. Frontend builds successfully and Playwright E2E smoke tests (auth + panel navigation) pass 3/3. All P1 panel APIs are wired and working against the real backend contracts.
+- Tests: backend `python -m pytest` -> 72 passed (exit 0). `ruff check .` exit 0, `mypy app` -> Success: no issues found in 60 source files. Frontend `npm run build` -> success. `npm run test:e2e` -> 3 passed (auth/panels smoke).
+- Status: Phase 1 complete. Next: Phase 2 (P2-01..P2-08) WhatsApp chatbot integration.
