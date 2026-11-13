@@ -39,7 +39,7 @@ Status legend: `[ ]` todo, `[x]` done, `[~]` blocked
 - [x] P1-07 | Payment receipts lookup and status | Issue/lookup receipts, payment status tracking; tests | P1-06
 
 ### 1.4 WhatsApp templated reminders (non-AI)
-- [ ] P1-08 | WhatsApp template/message management and opt-out | Template/message storage and management for business-initiated reminders (controlled/approved content where applicable); member/contact consent and opt-out respected; tests ensure opt-out blocks send; compatible with openWA integration target (ADR 0001) | P1-01, P0-11, P0-10
+- [x] P1-08 | WhatsApp template/message management and opt-out | Template/message storage and management for business-initiated reminders (controlled/approved content where applicable); member/contact consent and opt-out respected; tests ensure opt-out blocks send; compatible with openWA integration target (ADR 0001) | P1-01, P0-11, P0-10
 - [ ] P1-09 | Outbound message logging and audit | All outbound WhatsApp messages (reminders and later chatbot replies) logged with who/what/why and template used; queryable audit trail; tests | P1-08
 - [ ] P1-10 | Automated reminders (welcome, expiry 7/3/1, payment due) | Scheduler/jobs enqueue reminders based on rules; uses messaging mock; respects opt-out and controlled/approved message templates; tests for scheduling and logging | P1-04, P1-06, P1-09, P0-14
 

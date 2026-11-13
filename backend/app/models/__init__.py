@@ -5,6 +5,7 @@ from app.models.member import Member
 from app.models.membership import Membership
 from app.models.payment import Payment
 from app.models.plan import MembershipPlan
+from app.models.template import MessageTemplate
 
 __all__ = [
     "Gym",
@@ -18,4 +19,5 @@ __all__ = [
     "Membership",
     "Invoice",
     "Payment",
+    "MessageTemplate",
 ]
