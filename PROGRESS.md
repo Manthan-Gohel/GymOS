@@ -134,3 +134,10 @@
 - Status: Done, committed.
 - Known issues: Audit metadata includes changed field names; ensure future sensitive fields remain value-redacted.
 
+## Iteration 19
+- Task: P1-03 | Membership plans CRUD
+- Changes: Added `MembershipPlan` model (`membership_plans`: name, duration_days, price_paise, currency, terms JSON, is_active) with migration `77ca8d6edcbf_add_membership_plans.py`; added `POST/GET/PATCH /plans` routes with tenant scoping and RBAC (write: owner/admin, read: all staff); added `backend/tests/test_p1_03_plans.py`.
+- Tests: `(cd backend && python -m pytest -q)` -> `30 passed, 1 warning` (exit 0). Root: `python -m pytest -q` -> `41 passed, 1 warning in 16.26s` (exit 0). Lint/type: `ruff check .` exit 0, `mypy app` -> `Success: no issues found in 28 source files` (exit 0).
+- Status: Done, committed.
+- Known issues: Plan branch defaults to user's branch (or 0); plan deletion not implemented (use is_active). StarletteDeprecationWarning and bcrypt/passlib log warning persist (non-failing).
+
