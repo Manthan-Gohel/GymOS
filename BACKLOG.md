@@ -7,7 +7,7 @@ Status legend: `[ ]` todo, `[x]` done, `[~]` blocked
 
 - [x] P0-01 | Repo scaffold and base directories | `backend/`, `frontend/`, `infra/`, `docs/`, `.gitignore`, and top-level README exist; README describes stack and how to run locally | none
 - [x] P0-02 | Backend project bootstrap (FastAPI + Python 3.12) | `backend/pyproject.toml` (or requirements) with FastAPI, SQLAlchemy 2, Alembic, Pydantic, pytest, lint/type tools; `backend/app/main.py` exposes `/health`; `pytest` runs at least one passing health test | P0-01
-- [ ] P0-03 | Docker Compose dev environment | `docker-compose.yml` defines api, db (Postgres), redis, worker services; `.env.example` provided; `docker compose config`/basic up instructions documented; local dev can start services (documented) | P0-02
+- [x] P0-03 | Docker Compose dev environment | `docker-compose.yml` defines api, db (Postgres), redis, worker services; `.env.example` provided; `docker compose config`/basic up instructions documented; local dev can start services (documented) | P0-02
 - [ ] P0-04 | CI pipeline (GitHub Actions) | Workflow runs backend lint, type-check, and tests on push/PR; fails on errors; status documented in README | P0-02
 - [ ] P0-05 | Linting and type-checking baseline | Ruff (or flake8+black) and mypy/pyright configured for backend with passing baseline; `make`/script commands or documented commands to run lint/type/test | P0-02
 - [ ] P0-06 | Multi-tenant core schema and migrations | Alembic initialized; models/tables for gym, branch, user, role/user_role (or equivalent) all include `gym_id` and `branch_id` where applicable; migration applies cleanly to fresh DB; tests verify tenant columns present | P0-02
