@@ -149,3 +149,10 @@
 - Status: Done, committed.
 - Known issues: Expiry engine callable on-demand/service-level (Celery schedule wiring for periodic expiry can be added in reminder/scheduler tasks later); upgrade starts new plan duration from provided start date (proration rules not implemented). Same warnings as before.
 
+## Iteration 21
+- Task: P1-05 | Receipts and GST-ready invoices
+- Changes: Added `Invoice` model/migration `c5a7b7e28705_add_invoices.py` (GST fields: taxable value, rate, CGST/SGST/IGST, total, configurable seller/buyer/metadata, linked to member/membership/payment), `app/services/invoices.py` (`generate_invoice` with intra/inter GST split), and `POST/GET /invoices` routes with tenant scoping/RBAC. Added `backend/tests/test_p1_05_invoices.py`.
+- Tests: `(cd backend && python -m pytest -q)` -> `34 passed, 1 warning` (exit 0). Root: `python -m pytest -q` -> `45 passed, 1 warning` (exit 0). Lint/type: `ruff check .` exit 0, `mypy app` -> `Success: no issues found in 34 source files` (exit 0).
+- Status: Done, committed.
+- Known issues: Invoice numbering is simple per-gym sequence; `payment_id` linkage will be exercised in P1-06+. GST logic is configurable/basic (intra CGST/SGST split, inter IGST) and may need jurisdiction-specific refinement.
+
