@@ -223,3 +223,75 @@ def update_conversation(
     conv.updated_at = datetime.now(UTC)
     db.commit()
     return {"status": "updated", "conversation_id": conv.id}
+
+
+@router.get("/inbox")
+def staff_inbox(
+    current_user: Annotated[User, Depends(get_current_user)],
+    _role: StaffWrite,
+    db: Annotated[Session, Depends(get_db)],
+    status_value: str | None = None,
+    bot_paused: bool | None = None,
+    limit: int = 50,
+):
+    """Staff inbox: conversations needing attention (bot paused, unread, escalated)."""
+    query = db.query(Conversation).filter(Conversation.gym_id == current_user.gym_id)
+    if status_value:
+        query = query.filter(Conversation.status == status_value)
+    if bot_paused is not None:
+        query = query.filter(Conversation.bot_paused.is_(bot_paused))
+    items = query.order_by(Conversation.last_message_at.desc().nullslast()).limit(min(max(limit, 1), 200)).all()
+    return {
+        "items": [
+            {
+                "id": c.id,
+                "contact_phone": c.contact_phone,
+                "status": c.status,
+                "bot_paused": c.bot_paused,
+                "last_message_at": c.last_message_at.isoformat() if c.last_message_at else None,
+            }
+            for c in items
+        ],
+        "total": len(items),
+    }
+
+
+@router.post("/conversations/{conversation_id}/staff-reply")
+def staff_reply(
+    conversation_id: int,
+    payload: dict,
+    current_user: Annotated[User, Depends(get_current_user)],
+    _role: StaffWrite,
+    db: Annotated[Session, Depends(get_db)],
+):
+    """Staff sends a reply in a paused conversation; bot remains paused unless explicitly resumed."""
+    from app.services.messaging import send_logged_message
+
+    conv = (
+        db.query(Conversation)
+        .filter(Conversation.id == conversation_id, Conversation.gym_id == current_user.gym_id)
+        .first()
+    )
+    if conv is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Conversation not found")
+
+    body = str(payload.get("body", "")).strip()
+    if not body:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="Body required")
+
+    # Log as outbound message
+    log = send_logged_message(
+        db,
+        gym_id=current_user.gym_id,
+        branch_id=conv.branch_id,
+        phone=conv.contact_phone,
+        body=body,
+        kind="staff_reply",
+        why=f"conversation:{conv.id}",
+        template_name="staff_reply",
+    )
+    conv.last_message_at = datetime.now(UTC)
+    conv.updated_at = datetime.now(UTC)
+    db.commit()
+
+    return {"status": "sent", "message_id": log.id, "conversation_id": conv.id}

@@ -1,4 +1,3 @@
-from datetime import date
 
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -11,7 +10,6 @@ from app.db.session import get_db
 from app.main import app
 from app.models.lead import Lead
 from app.models.member import Member
-from app.models.conversation import Conversation
 from app.services.chatbot import _detect_intent, _handle_trial_booking, run_chatbot
 
 

@@ -40,12 +40,12 @@ class ChatbotDecision:
     meta: dict[str, Any] | None = None
 
 
-def _should_handoff(text: str) -> tuple[bool, str | None]:
+def _should_handoff(text: str) -> tuple[bool, str]:
     lowered = text.lower()
     for kw in HANDOFF_KEYWORDS:
         if kw in lowered:
             return True, f"keyword: {kw}"
-    return False, None
+    return False, ""
 
 
 def _detect_intent(text: str) -> list[str]:
@@ -175,6 +175,42 @@ def _handle_trial_booking(
     )
 
 
+def _trigger_handoff(
+    db: Session,
+    gym_id: int,
+    branch_id: int,
+    from_phone: str,
+    conversation_id: int | None,
+    reason: str,
+) -> None:
+    """Pause bot for this conversation and notify staff via internal message."""
+    from app.models.conversation import Conversation
+    from app.services.messaging import send_logged_message
+
+    if conversation_id:
+        conv = db.query(Conversation).filter(Conversation.id == conversation_id, Conversation.gym_id == gym_id).first()
+    else:
+        conv = db.query(Conversation).filter(Conversation.gym_id == gym_id, Conversation.contact_phone == from_phone).first()
+
+    if conv:
+        conv.bot_paused = True
+        conv.status = "escalated"
+        conv.updated_at = __import__("datetime").datetime.now(__import__("datetime").UTC)
+
+    # Notify gym-staff internal channel
+    send_logged_message(
+        db,
+        gym_id=gym_id,
+        branch_id=branch_id,
+        phone="gym-staff",
+        body=f"🤖 Bot handoff triggered: {reason}\nContact: {from_phone}\nConversation: {conversation_id or 'new'}",
+        kind="handoff_alert",
+        why=f"handoff:{reason}:{from_phone}",
+        template_name="handoff_alert",
+    )
+    db.commit()
+
+
 def run_chatbot(
     db: Session,
     *,
@@ -189,6 +225,7 @@ def run_chatbot(
     # 1. Check handoff keywords
     handoff, reason = _should_handoff(inbound_text)
     if handoff:
+        _trigger_handoff(db, gym_id, branch_id, from_phone, conversation_id, reason)
         return ChatbotDecision(
             reply="I've flagged this for a staff member to assist you directly. They'll reach out shortly.",
             handoff=True,

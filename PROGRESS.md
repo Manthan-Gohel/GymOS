@@ -309,3 +309,9 @@
 - Changes: Extended chatbot with trial booking intent detection (`TRIAL_KEYWORDS`) and `_handle_trial_booking()` that: extracts name/date from message, checks for existing lead/member, creates Lead with status `trial_booked` or `new`, source `whatsapp`, and optional `trial_date`. Integrated into `run_chatbot()` flow before LLM. Added `tests/test_p2_04_trial_booking.py` (6 tests).
 - Tests: backend `python -m pytest` -> 97 passed (exit 0). `ruff check .` exit 0, `mypy app` -> Success: no issues found in 64 source files.
 - Status: Done, committed.
+
+## Iteration 41
+- Task: P2-05 | Human handoff and staff inbox (bot pause/resume)
+- Changes: Extended chatbot with `_trigger_handoff()` that pauses conversation (`bot_paused=True`, `status=escalated`) and logs staff alert via internal messaging. Added `/whatsapp/inbox` endpoint for staff to see paused/escalated conversations with filters. Added `/whatsapp/conversations/{id}/staff-reply` for staff to reply in paused conversations (bot stays paused). Added `tests/test_p2_05_handoff.py` (6 tests).
+- Tests: backend `python -m pytest` -> 103 passed (exit 0). `ruff check .` exit 0, `mypy app` -> Success: no issues found in 64 source files.
+- Status: Done, committed.
