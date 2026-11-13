@@ -1,19 +1,23 @@
-# GymOS
+# GymOS (Owner-side)
 
-Gym Operating System for gyms in India (operations, members, attendance, payments, messaging, and AI-assisted workflows). Multi-tenant (gym + branch) by design.
+Owner-side Gym Operating System for gyms in India: tools for owner and staff only, plus an AI WhatsApp chatbot for people who message the gym. No member-facing app and no member login.
+
+## Scope
+- **IN:** Owner/staff panels and workflows, plus the AI WhatsApp chatbot (grounded FAQ, trial booking/lead capture into CRM, human handoff with guardrails).
+- **OUT:** No QR/NFC/member attendance, no member app/PWA/login, no AI Gym Manager, no automated lead follow-up sequences, no workout/diet AI, no progress tracking/inactive/retention/renewal AI, no occupancy analytics/forecasting/AI business recs, no face check-in/predictive maintenance.
 
 ## Stack
 - **Backend:** Python 3.12, FastAPI, SQLAlchemy 2 + Alembic, PostgreSQL, Redis, Celery (jobs/schedulers)
-- **Frontend:** React + Vite + TypeScript + Tailwind (admin/reception/trainer/owner panels); member app as PWA
-- **Auth:** JWT + RBAC (owner, admin, reception, trainer, member)
+- **Frontend:** React + Vite + TypeScript + Tailwind (Owner, Admin, Reception, Trainer panels)
+- **Auth:** JWT + RBAC (owner, admin, reception, trainer)
 - **Messaging:** WhatsApp Business Cloud API behind provider interface (mock in dev/tests)
 - **Payments:** Razorpay/UPI behind provider interface (mock in dev/tests)
-- **AI:** Provider-agnostic LLM interface with graceful rule-based fallback
+- **AI:** Provider-agnostic LLM interface used only by the WhatsApp chatbot; falls back to canned replies + human handoff if unavailable
 - **Tests/CI:** pytest + Playwright, GitHub Actions
 
 ## Repository layout
 - `backend/` — FastAPI service, domain logic, migrations, workers
-- `frontend/` — React + Vite web app (panels and member PWA)
+- `frontend/` — React + Vite web app (staff panels)
 - `infra/` — Docker and infra configuration
 - `docs/` — documentation and ADRs (`docs/adr/`)
 - `PLAN.md`, `BACKLOG.md`, `PROGRESS.md`, `DECISIONS.md`, `BLOCKERS.md` — project state
@@ -26,36 +30,15 @@ Gym Operating System for gyms in India (operations, members, attendance, payment
 - Node.js 20+ (for frontend, added in later phases)
 
 ### Setup
-1. Copy environment template:
-   ```bash
-   cp .env.example .env
-   ```
-   (Adjust values as needed; never commit secrets.)
+1. Copy environment template: `cp .env.example .env` (never commit secrets).
+2. Start the stack: `docker compose up --build`
+3. Backend (local): `cd backend`, create venv, install deps (`pip install -e ".[dev]"` or as configured), then `uvicorn app.main:app --reload`
+4. Run tests: `pytest`
 
-2. Start the stack:
-   ```bash
-   docker compose up --build
-   ```
-   Services (as they are added): `api`, `db` (PostgreSQL), `redis`, `worker`.
-
-3. Run backend locally (alternative/dev workflow, once bootstrapped in `backend/`):
-   ```bash
-   cd backend
-   python -m venv .venv
-   # activate venv, then install deps
-   pip install -e .  # or project-defined install command
-   uvicorn app.main:app --reload
-   ```
-
-4. Run tests:
-   ```bash
-   pytest
-   ```
-
-> Note: This repo is being built iteratively. See `PROGRESS.md` for current status, `BLOCKERS.md` for items needing credentials/hardware, and `BACKLOG.md` for planned work. Real integrations (WhatsApp, Razorpay, biometrics/NFC hardware) use mocks in dev/tests.
+> Real integrations (WhatsApp, Razorpay, LLM) use mocks in dev/tests until credentials exist. See `BLOCKERS.md`.
 
 ## Principles
 - Multi-tenant from day one: every table carries `gym_id` and `branch_id`; tenant-scoped queries.
-- AI/member-contact actions go through approval/audit (auto-send or staff-approve) with logs.
-- Consent and opt-out respected (WhatsApp, biometrics opt-in only; embeddings not photos).
+- All outbound WhatsApp messages logged (who/what/why, template). Respect consent/opt-out (DPDP Act); only approved templates for business-initiated messages.
+- Chatbot answers grounded in gym data only; escalate on medical/health/refunds/complaints or uncertainty; never invent prices/promises.
 - No feature without a test.
