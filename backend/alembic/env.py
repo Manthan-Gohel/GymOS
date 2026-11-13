@@ -10,6 +10,7 @@ from app.core.config import settings
 from app.db.base import Base
 from app.models import audit as _audit  # noqa: F401
 from app.models import complaint as _complaint  # noqa: F401
+from app.models import conversation as _conversation  # noqa: F401
 from app.models import core as _models  # noqa: F401
 from app.models import equipment as _equipment  # noqa: F401
 from app.models import expense as _expense  # noqa: F401

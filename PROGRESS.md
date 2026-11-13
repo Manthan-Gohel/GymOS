@@ -284,3 +284,10 @@
 - Changes: Full backend test suite (72 tests) passes with 0 failures. Ruff + mypy clean. Frontend builds successfully and Playwright E2E smoke tests (auth + panel navigation) pass 3/3. All P1 panel APIs are wired and working against the real backend contracts.
 - Tests: backend `python -m pytest` -> 72 passed (exit 0). `ruff check .` exit 0, `mypy app` -> Success: no issues found in 60 source files. Frontend `npm run build` -> success. `npm run test:e2e` -> 3 passed (auth/panels smoke).
 - Status: Phase 1 complete. Next: Phase 2 (P2-01..P2-08) WhatsApp chatbot integration.
+
+## Iteration 37
+- Task: P2-01 | Inbound WhatsApp webhook and conversation store
+- Changes: Added `Conversation`/`InboundMessage` models + migration `141ef34464af_add_conversations_and_inbound_messages.py`; `POST /whatsapp/webhook` accepts inbound messages (JSON/form), creates/updates conversation per contact, logs raw payload; `GET /whatsapp/conversations` with status filter; `GET /whatsapp/conversations/{id}/messages` for history; `POST /whatsapp/conversations/{id}/pause|resume` for bot pause/resume; `PATCH /whatsapp/conversations/{id}` for status/bot_paused updates. RBAC: owner/admin/reception can read/manage, trainer cannot. Added `tests/test_p2_01_whatsapp_webhook.py` (6 tests).
+- Tests: backend `python -m pytest` -> 78 passed (exit 0). `ruff check .` exit 0, `mypy app` -> Success: no issues found in 62 source files.
+- Status: Done, committed.
+- Known issues: Signature validation not yet implemented (header reserved); per-number rate limiting not yet added; webhook assumes single gym in dev (gym_id inferred).

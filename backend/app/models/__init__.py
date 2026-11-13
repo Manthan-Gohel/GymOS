@@ -1,5 +1,6 @@
 from app.models.audit import AuditLog
 from app.models.complaint import Complaint
+from app.models.conversation import Conversation, InboundMessage
 from app.models.core import Branch, Gym, Role, User, UserRole
 from app.models.equipment import Equipment, MaintenanceSchedule
 from app.models.expense import Expense
@@ -39,6 +40,8 @@ __all__ = [
     "Expense",
     "Lead",
     "Complaint",
+    "Conversation",
+    "InboundMessage",
     "Equipment",
     "MaintenanceSchedule",
 ]
