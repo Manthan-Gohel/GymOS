@@ -221,3 +221,10 @@
 - Tests: backend `python -m pytest` -> 58 passed (exit 0). `ruff check .` exit 0, `mypy app` -> Success: no issues found in 52 source files.
 - Status: Done, committed.
 - Known issues: Dashboard is tenant-wide (branch breakdown arrives P3-01); revenue is cash-basis from recorded payments only; expenses have no edit/delete/approval flow.
+
+## Iteration 31
+- Task: P1-15 | Leads/enquiries CRM
+- Changes: Added `Lead` model + migration `844fb3504dce_add_leads.py`; `POST/GET/GET-by-id/PATCH /leads` with pipeline statuses new/contacted/trial_booked/converted/lost, trial date, assignee, source, notes; status filter via `?status=`; reception write, all staff read, tenant-scoped. Added `backend/tests/test_p1_15_leads.py`.
+- Tests: backend `python -m pytest` -> 60 passed (exit 0). `ruff check .` exit 0, `mypy app` -> Success: no issues found in 54 source files.
+- Status: Done, committed.
+- Known issues: No lead follow-up automation (explicitly OUT of scope); no lead-to-member conversion record linking; no duplicate-phone detection.

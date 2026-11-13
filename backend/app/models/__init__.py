@@ -2,6 +2,7 @@ from app.models.audit import AuditLog
 from app.models.core import Branch, Gym, Role, User, UserRole
 from app.models.expense import Expense
 from app.models.invoice import Invoice
+from app.models.lead import Lead
 from app.models.member import Member
 from app.models.membership import Membership
 from app.models.message import OutboundMessage
@@ -34,5 +35,6 @@ __all__ = [
     "StaffAttendance",
     "PayrollRecord",
     "Expense",
+    "Lead",
 ]
 

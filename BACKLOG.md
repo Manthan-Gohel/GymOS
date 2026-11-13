@@ -52,7 +52,7 @@ Status legend: `[ ]` todo, `[x]` done, `[~]` blocked
 - [x] P1-14 | Expenses and daily revenue/expense/profit dashboard API | Expense tracking and aggregated metrics endpoints for daily revenue/expense/profit; tests for calculations | P1-06, P1-13
 
 ### 1.7 CRM, complaints, equipment
-- [ ] P1-15 | Leads/enquiries CRM (manual) | Lead capture, status, trial booking, notes; no automated follow-up sequences; tests | P0-15
+- [x] P1-15 | Leads/enquiries CRM (manual) | Lead capture, status, trial booking, notes; no automated follow-up sequences; tests | P0-15
 - [ ] P1-16 | Complaint log (manual) | Complaint intake, status, assignee, resolution notes; tests | P0-15
 - [ ] P1-17 | Equipment registry and manual maintenance schedules/reminders | Equipment records, manual maintenance schedules, reminder tasks/messages via mock with logging; no predictive maintenance; tests | P0-15, P0-14, P1-09
 
