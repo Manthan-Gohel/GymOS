@@ -49,7 +49,7 @@ Status legend: `[ ]` todo, `[x]` done, `[~]` blocked
 
 ### 1.6 Staff, expenses, dashboard
 - [x] P1-13 | Staff attendance (manual by admin) and payroll records | Admin records staff attendance manually; payroll record structures (calculation-ready, not disbursement); tests | P0-15
-- [ ] P1-14 | Expenses and daily revenue/expense/profit dashboard API | Expense tracking and aggregated metrics endpoints for daily revenue/expense/profit; tests for calculations | P1-06, P1-13
+- [x] P1-14 | Expenses and daily revenue/expense/profit dashboard API | Expense tracking and aggregated metrics endpoints for daily revenue/expense/profit; tests for calculations | P1-06, P1-13
 
 ### 1.7 CRM, complaints, equipment
 - [ ] P1-15 | Leads/enquiries CRM (manual) | Lead capture, status, trial booking, notes; no automated follow-up sequences; tests | P0-15

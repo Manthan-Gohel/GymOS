@@ -214,3 +214,10 @@
 - Tests: backend `python -m pytest` -> 56 passed (exit 0). `ruff check .` exit 0, `mypy app` -> Success: no issues found in 50 source files.
 - Status: Done, committed.
 - Known issues: No payroll disbursement/payslips/tax (calculation-ready records only, as scoped); no attendance edit/delete; attendance is manual only.
+
+## Iteration 30
+- Task: P1-14 | Expenses and daily revenue/expense/profit dashboard API
+- Changes: Added `Expense` model + migration `4b150da02ccc_add_expenses.py`; owner/admin `POST/GET /expenses` (month/date/category filters) and `GET /dashboard/daily` + `GET /dashboard/summary` computing paid revenue (refunded excluded), expenses and profit; added `backend/tests/test_p1_14_dashboard.py`.
+- Tests: backend `python -m pytest` -> 58 passed (exit 0). `ruff check .` exit 0, `mypy app` -> Success: no issues found in 52 source files.
+- Status: Done, committed.
+- Known issues: Dashboard is tenant-wide (branch breakdown arrives P3-01); revenue is cash-basis from recorded payments only; expenses have no edit/delete/approval flow.

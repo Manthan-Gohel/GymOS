@@ -10,6 +10,7 @@ from app.core.config import settings
 from app.db.base import Base
 from app.models import audit as _audit  # noqa: F401
 from app.models import core as _models  # noqa: F401
+from app.models import expense as _expense  # noqa: F401
 from app.models import invoice as _invoice  # noqa: F401
 from app.models import member as _member  # noqa: F401
 from app.models import membership as _membership  # noqa: F401

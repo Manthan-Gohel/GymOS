@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 
 from app.api.routes.auth import router as auth_router
+from app.api.routes.finance import router as finance_router
 from app.api.routes.invoices import router as invoices_router
 from app.api.routes.members import router as members_router
 from app.api.routes.memberships import router as memberships_router
@@ -26,6 +27,7 @@ app.include_router(reminders_router)
 app.include_router(trainers_router)
 app.include_router(sessions_router)
 app.include_router(staff_router)
+app.include_router(finance_router)
 
 
 @app.get("/health")
