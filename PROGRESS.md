@@ -291,3 +291,9 @@
 - Tests: backend `python -m pytest` -> 78 passed (exit 0). `ruff check .` exit 0, `mypy app` -> Success: no issues found in 62 source files.
 - Status: Done, committed.
 - Known issues: Signature validation not yet implemented (header reserved); per-number rate limiting not yet added; webhook assumes single gym in dev (gym_id inferred).
+
+## Iteration 38
+- Task: P2-02 | Grounded gym knowledge source for chatbot
+- Changes: Added `app/services/knowledge.py` with `get_gym_knowledge()` fetching structured data (plans, trainers with availability, branch info), `format_knowledge_for_llm()` rendering concise text block for LLM system prompt, and `get_member_context()` for personalized member data (active membership, dues). Models: `PlanInfo`, `TrainerInfo`, `BranchInfo`, `GymKnowledge` dataclasses. Handles dict-type plan terms. Added `tests/test_p2_02_knowledge.py` (6 tests).
+- Tests: backend `python -m pytest` -> 84 passed (exit 0). `ruff check .` exit 0, `mypy app` -> Success: no issues found in 63 source files.
+- Status: Done, committed.
