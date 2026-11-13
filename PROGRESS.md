@@ -272,3 +272,9 @@
   - Root suite -> 13 passed in 0.25s (exit 0).
 - Status: Done. "Frontend not started" issue resolved.
 - Known issues: E2E Playwright tests require running Vite dev server + live backend; frontend UI styling uses Tailwind CSS.
+
+## Iteration 35
+- Task: P1-18..P1-22 Frontend panels wired to real backend APIs
+- Changes: Fixed frontend API client (`api.ts`) to unwrap `{items,total}` lists, match real payment response shape (`PaymentResult`), freeze/unfreeze payloads (`frozen_on`/`unfrozen_on`), and added `ops.ts` types for leads, complaints, equipment, maintenance, trainers, sessions, staff, finance. Updated `ReceptionPanel` with tabs for leads/complaints using new `LeadsBoard`/`ComplaintsBoard` components. Rewrote `AdminPanel` against real endpoints (plans, trainers, staff attendance/payroll, expenses, equipment/maintenance). Rewrote `OwnerDashboard` with live daily/monthly finance summaries, dues, expiries, pipeline. Rewrote `TrainerPanel` with availability, assigned members, today's sessions, attendance check-in (trainer can mark own sessions). Added `/users` list endpoint for staff names, trainer attendance permission fix (trainers can record own sessions). Added `test_users_list.py` and `test_p1_22_trainer_attendance.py`.
+- Tests: backend `python -m pytest` -> 72 passed (exit 0). `ruff check .` exit 0, `mypy app` -> Success: no issues found in 60 source files. Frontend `npm run build` -> success. `npm run test:e2e` -> 3 passed (auth/panels smoke).
+- Status: Done, committed.

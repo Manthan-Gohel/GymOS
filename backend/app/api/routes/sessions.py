@@ -221,10 +221,19 @@ def record_attendance(
     session_id: int,
     payload: AttendanceCreate,
     current_user: Annotated[User, Depends(get_current_user)],
-    _role: StaffWrite,
+    _role: StaffRead,
     db: Annotated[Session, Depends(get_db)],
 ):
     s = _get_session(db, current_user.gym_id, session_id)
+    roles = set(getattr(current_user, "role_names", []) or [])
+    if not roles.intersection({"owner", "admin", "reception"}):
+        trainer = (
+            db.query(Trainer)
+            .filter(Trainer.id == s.trainer_id, Trainer.gym_id == current_user.gym_id)
+            .first()
+        )
+        if trainer is None or trainer.user_id != current_user.id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     if payload.checked_out_at is not None and payload.checked_out_at < payload.checked_in_at:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="checked_out_at must be after checked_in_at")
     attendance = TrainerAttendance(
