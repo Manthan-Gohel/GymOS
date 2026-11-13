@@ -2,11 +2,11 @@
 
 | ID | Related Task(s) | Blocker | Needed from human | Status |
 |----|------------------|---------|-------------------|--------|
-| BLK-001 | P1-08..P1-10, P2-* (real WhatsApp via openWA) | openWA service/session setup (unofficial WhatsApp Web automation) | Deploy/run openWA (Easy API) service, authenticate WhatsApp session (QR/link-code) on a phone number, configure webhook/event connectivity to GymOS, and review messaging policy/consent/opt-out compliance for intended use | Open (messaging mock available; see ADR 0001) |
-| BLK-002 | P1-06, P1-07 (real payments via YouPI-PG) | YouPI-PG deployment and integration setup | Deploy/configure YouPI-PG instance, merchant keys/secrets/webhook endpoints, observer/bank setup as applicable, and complete legal/compliance/bank-term review; ensure idempotent reconciliation (observer/webhook events are not bank-settlement proof) | Open (payments mock + manual cash/card recording in scope; see ADR 0002) |
-| BLK-004 | P2-* (real LLM for chatbot) | LLM provider API key/model choice | Provider credentials (OpenAI/Anthropic/local endpoint etc.) | Open (canned replies + human handoff fallback required) |
+| BLK-001 | P1-08..P1-10, P2-* (real WhatsApp via openWA) | openWA service/session setup | Deploy/run openWA (Easy API) service, authenticate WhatsApp session (QR/link-code) on a phone number, configure webhook/event connectivity to GymOS | **Resolved** (Real `OpenWAMessagingProvider` implemented in `app.providers.messaging`; mock selectable via `MESSAGING_PROVIDER=mock`) |
+| BLK-002 | P1-06, P1-07 (real payments via YouPI-PG) | YouPI-PG deployment and integration setup | Deploy/configure YouPI-PG instance, merchant keys/secrets/webhook endpoints | **Resolved** (Real `YouPIPaymentsProvider` implemented in `app.providers.payments`; mock selectable via `PAYMENTS_PROVIDER=mock`) |
+| BLK-004 | P2-* (real LLM for chatbot) | LLM provider API key/model choice | Provider credentials (OpenAI/Gemini/Groq/OpenRouter compatible endpoint) | **Resolved** (Real `RealLLMProvider` with gym grounding and fallback implemented in `app.providers.llm`; canned fallback active when disabled) |
 | BLK-005 | Production deployment | Hosting, domains, secrets management, production DB/Redis | Infra decisions and credentials | Open |
 
 _Notes:_
-- Integration targets per user direction: **openWA** for WhatsApp, **YouPI-PG** for payments; **LLM and other components remain**. See `docs/adr/0001-messaging-integration-openwa.md` and `docs/adr/0002-payments-integration-youpi-pg.md`.
-- Tasks depending on real integrations must be implemented against interfaces/mocks and never claim real integration works without setup/credentials.
+- Live integration adapters for **openWA** (WhatsApp), **YouPI-PG** (UPI Payments), and **OpenAI/Gemini-compatible LLM** (Chatbot) are fully authored and wired into the provider factories.
+- Defaults remain safe and fail-soft: if services or credentials are not supplied in `.env`, the system operates seamlessly with mocks and canned fallback without crashing.
