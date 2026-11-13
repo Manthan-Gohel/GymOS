@@ -92,3 +92,10 @@
 - Status: Done, committed.
 - Known issues: Real WhatsApp provider raises NotImplementedError without credentials (BLK-001); mock only.
 
+## Iteration 13
+- Task: P0-12 | Provider interface: payments + mock
+- Changes: Added `app/providers/payments.py` with `PaymentsProvider` protocol, `MockPaymentsProvider` (create/record payment flow), and `get_payments_provider()` defaulting to mock; added/implemented `backend/tests/test_p0_12_payments_provider.py`.
+- Tests: `(cd backend && python -m pytest -q)` -> `19 passed, 1 warning` (exit 0). Lint/type: `ruff check .` exit 0, `mypy app` -> `Success: no issues found in 22 source files` (exit 0).
+- Status: Done, committed.
+- Known issues: Real Razorpay/UPI provider raises NotImplementedError without credentials (BLK-002); mock only.
+
