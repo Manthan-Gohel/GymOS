@@ -27,7 +27,7 @@ Status legend: `[ ]` todo, `[x]` done, `[~]` blocked
 
 ### 1.1 Member records (staff-entered)
 - [x] P1-01 | Member record model and CRUD | Member entity (gym_id, branch_id, profile photo ref, KYC fields, emergency contact, health notes, consent/opt-out flags) entered by reception/admin; create/read/update; validation; tests for tenant scoping | P0-15
-- [ ] P1-02 | Member record audit and data handling | Member create/update writes audit log entries; sensitive fields handled appropriately; tests verify audit trail | P1-01, P0-10
+- [x] P1-02 | Member record audit and data handling | Member create/update writes audit log entries; sensitive fields handled appropriately; tests verify audit trail | P1-01, P0-10
 
 ### 1.2 Plans & memberships
 - [ ] P1-03 | Membership plans CRUD | Plan entity (name, duration, price, terms metadata) scoped to gym/branch; CRUD endpoints with RBAC; tests | P0-15

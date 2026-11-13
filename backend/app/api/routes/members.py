@@ -11,6 +11,7 @@ from app.core.rbac import require_roles
 from app.db.session import get_db
 from app.models.core import User
 from app.models.member import Member
+from app.services.audit import write_audit_log
 
 router = APIRouter(prefix="/members", tags=["members"])
 
@@ -97,6 +98,17 @@ def create_member(
         **payload.model_dump(),
     )
     db.add(member)
+    db.flush()
+    write_audit_log(
+        db,
+        gym_id=current_user.gym_id,
+        branch_id=current_user.branch_id,
+        actor_user_id=current_user.id,
+        action="member.create",
+        entity_type="member",
+        entity_id=member.id,
+        why="staff_entered_member_record",
+    )
     db.commit()
     db.refresh(member)
     return _to_dict(member)
@@ -134,8 +146,20 @@ def update_member(
     )
     if not member:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Member not found")
+    changed = list(payload.model_dump(exclude_unset=True).keys())
     for key, value in payload.model_dump(exclude_unset=True).items():
         setattr(member, key, value)
+    write_audit_log(
+        db,
+        gym_id=current_user.gym_id,
+        branch_id=current_user.branch_id,
+        actor_user_id=current_user.id,
+        action="member.update",
+        entity_type="member",
+        entity_id=member.id,
+        why="staff_updated_member_record",
+        metadata={"changed_fields": changed},
+    )
     db.commit()
     db.refresh(member)
     return _to_dict(member)

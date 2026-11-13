@@ -127,3 +127,10 @@
 - Status: Done, committed.
 - Known issues: Member create defaults `branch_id` to current user's branch (or 0 if unset); further branch-assignment rules can be refined in later tasks. Bcrypt/passlib version warning observed in test logs (non-failing).
 
+## Iteration 18
+- Task: P1-02 | Member record audit and data handling
+- Changes: `members` create/update now write audit log entries (`member.create`, `member.update`) via `write_audit_log` with actor/tenant/entity context; update metadata logs changed field names only (no sensitive values). Added `backend/tests/test_p1_02_member_audit.py`.
+- Tests: `(cd backend && python -m pytest -q tests/test_p1_02_member_audit.py)` -> `1 passed, 1 warning` (exit 0). Full backend: `(cd backend && python -m pytest -q)` -> `28 passed, 1 warning` (exit 0). Lint/type: `ruff check .` exit 0, `mypy app` -> `Success: no issues found in 26 source files` (exit 0).
+- Status: Done, committed.
+- Known issues: Audit metadata includes changed field names; ensure future sensitive fields remain value-redacted.
+
