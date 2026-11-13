@@ -297,3 +297,9 @@
 - Changes: Added `app/services/knowledge.py` with `get_gym_knowledge()` fetching structured data (plans, trainers with availability, branch info), `format_knowledge_for_llm()` rendering concise text block for LLM system prompt, and `get_member_context()` for personalized member data (active membership, dues). Models: `PlanInfo`, `TrainerInfo`, `BranchInfo`, `GymKnowledge` dataclasses. Handles dict-type plan terms. Added `tests/test_p2_02_knowledge.py` (6 tests).
 - Tests: backend `python -m pytest` -> 84 passed (exit 0). `ruff check .` exit 0, `mypy app` -> Success: no issues found in 63 source files.
 - Status: Done, committed.
+
+## Iteration 39
+- Task: P2-03 | Grounded FAQ answering with LLM interface and fallback
+- Changes: Added `app/services/chatbot.py` with `run_chatbot()` that: (1) checks guardrail keywords (medical/health/refunds/complaints/uncertainty) → forced handoff; (2) loads structured gym knowledge via `get_gym_knowledge()`; (3) attaches member context if conversation linked; (4) detects intent (plans/trainers/location/timings/membership); (5) tries LLM provider (mock or real) with grounded system prompt; (6) falls back to canned replies using knowledge + member context. Canned fallback includes plan prices, trainer info, location, timings, membership actions. `send_outbound_reply()` logs bot replies to audit trail. Added `tests/test_p2_03_chatbot.py` (12 tests).
+- Tests: backend `python -m pytest` -> 90 passed (exit 0). `ruff check .` exit 0, `mypy app` -> Success: no issues found in 64 source files.
+- Status: Done, committed.

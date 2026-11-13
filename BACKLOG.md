@@ -68,7 +68,7 @@ Status legend: `[ ]` todo, `[x]` done, `[~]` blocked
 
 - [x] P2-01 | Inbound WhatsApp webhook and conversation store | Webhook endpoint receives inbound messages (mock/testable), stores conversations/messages with tenant/contact linkage; tests | P1-23, P0-11, P0-10
 - [x] P2-02 | Grounded gym knowledge source for chatbot | Structured access to gym data (timings, fees, plans, trainers, location/offers as available) used as sole grounding context; tests ensure answers derive from this data | P2-01, P1-03, P1-11
-- [ ] P2-03 | Grounded FAQ answering with LLM interface and fallback | Chatbot answers FAQs using LLM interface when available, strictly grounded in gym data; falls back to canned replies + human handoff if LLM down/uncertain; no invented prices/promises; tests | P2-02, P0-13
+- [x] P2-03 | Grounded FAQ answering with LLM interface and fallback | Chatbot answers FAQs using LLM interface when available, strictly grounded in gym data; falls back to canned replies + human handoff if LLM down/uncertain; no invented prices/promises; tests | P2-02, P0-13
 - [ ] P2-04 | Trial booking and lead capture into CRM | Chatbot can capture lead details and create/update trial booking in leads CRM with consent-aware handling; tests | P2-03, P1-15
 - [ ] P2-05 | Human handoff and staff inbox (bot pause/resume) | Escalation creates handoff, notifies/stores in staff inbox, bot paused while staff reply and resumable; tests for pause/resume and handoff flow | P2-03, P1-18
 - [ ] P2-06 | Guardrails, rate limits, and conversation audit | Escalation keywords (medical/health/refunds/complaints/uncertainty) force handoff; per-number rate limits; full conversation and outbound reply audit log (who/what/why/template when applicable); tests | P2-05, P1-09
