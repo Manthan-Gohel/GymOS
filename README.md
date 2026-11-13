@@ -45,6 +45,13 @@ Root tests: `pytest tests` from repo root. CI runs lint, type-check, and tests o
 
 > Real integrations (WhatsApp, Razorpay, LLM) use mocks in dev/tests until credentials exist. See `BLOCKERS.md`.
 
+## Foundation status (Phase 0 in progress/complete as per BACKLOG)
+- Multi-tenant core schema + Alembic migrations (`gyms`, `branches`, `users`, `roles`, `user_roles`, `audit_logs`) with `gym_id`/`branch_id`.
+- Auth: `POST /auth/login` (JWT with user/tenant/role claims), `GET /auth/me`; RBAC dependency for owner/admin/reception/trainer.
+- Tenant scoping helpers and audit log writer.
+- Provider interfaces + mocks: messaging, payments, LLM (chatbot-only, canned fallback + handoff when unavailable/disabled).
+- Celery worker + sample reminder task (`app.worker.celery_app`), Docker Compose services (api/db/redis/worker).
+
 ## Principles
 - Multi-tenant from day one: every table carries `gym_id` and `branch_id`; tenant-scoped queries.
 - All outbound WhatsApp messages logged (who/what/why, template). Respect consent/opt-out (DPDP Act); only approved templates for business-initiated messages.

@@ -106,3 +106,10 @@
 - Status: Done, committed.
 - Known issues: Real LLM provider not implemented without credentials (BLK-004); defaults to safe fallback when disabled.
 
+## Iteration 15 (maintenance pass included)
+- Task: P0-14 | Job scheduler for reminders & P0-15 | Foundation integration pass and docs
+- Changes: Added `app/worker.py` (Celery app + `sample_reminder_task`) and `backend/tests/test_p0_14_scheduler.py`; added `backend/tests/test_p0_15_foundation_smoke.py` (auth, RBAC, tenant scoping, audit, provider mocks wired); updated `README.md` with foundation status. Maintenance: re-verified full lint/type/test baseline and docs; backlog shows Phase 0 complete.
+- Tests: `(cd backend && python -m pytest -q)` -> `25 passed, 1 warning` (exit 0). Root: `python -m pytest -q` -> `36 passed, 1 warning in 7.74s` (exit 0). Lint/type: `ruff check .` exit 0, `mypy app` -> `Success: no issues found in 24 source files` (exit 0). Smoke validates migrations/schema usage, auth/JWT claims, RBAC allow/deny, tenant isolation, audit write, and mock providers/fallback.
+- Status: Done, committed. Phase 0 complete.
+- Known issues: StarletteDeprecationWarning (non-blocking); Docker runtime not validated in-session; SQLite used in tests (Postgres integration pending docker/runtime validation); real WhatsApp/Razorpay/LLM blocked by credentials (mocks/fallback in place).
+
