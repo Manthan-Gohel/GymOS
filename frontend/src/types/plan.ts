@@ -1,15 +1,13 @@
 export interface MembershipPlan {
   id: number;
   gym_id: number;
-  branch_id?: number | null;
+  branch_id: number | null;
   name: string;
   duration_days: number;
   price_paise: number;
   currency: string;
-  terms_json?: Record<string, unknown> | null;
+  terms: string | null;
   is_active: boolean;
-  created_at?: string;
-  updated_at?: string;
 }
 
 export interface CreatePlanPayload {
@@ -17,25 +15,27 @@ export interface CreatePlanPayload {
   duration_days: number;
   price_paise: number;
   currency?: string;
-  terms_json?: Record<string, unknown>;
+  terms?: string | null;
   is_active?: boolean;
 }
+
+export type MembershipStatus = 'active' | 'frozen' | 'expired' | 'upgraded';
 
 export interface Membership {
   id: number;
   gym_id: number;
-  branch_id?: number | null;
+  branch_id: number | null;
   member_id: number;
   plan_id: number;
+  status: MembershipStatus;
   start_date: string;
   end_date: string;
-  status: 'active' | 'frozen' | 'expired' | 'upgraded';
-  frozen_days: number;
-  created_at?: string;
+  frozen_on: string | null;
+  upgraded_to_id: number | null;
 }
 
 export interface PurchaseMembershipPayload {
   member_id: number;
   plan_id: number;
-  start_date?: string;
+  start_date: string;
 }

@@ -64,10 +64,9 @@ export const Sidebar: React.FC = () => {
               key={item.path}
               to={item.path}
               className={({ isActive }) =>
-                `flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition ${
-                  isActive
-                    ? 'bg-emerald-50 text-emerald-700 font-semibold'
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                `flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition ${isActive
+                  ? 'bg-emerald-50 text-emerald-700 font-semibold'
+                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                 }`
               }
             >
@@ -84,3 +83,6 @@ export const Sidebar: React.FC = () => {
     </aside>
   );
 };
+
+
+

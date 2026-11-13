@@ -1,7 +1,6 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { LogOut, Dumbbell, ShieldCheck } from 'lucide-react';
-import { UserRole } from '../types/auth';
 
 export const Navbar: React.FC = () => {
   const { user, roles, activeRole, switchRole, logout } = useAuth();
@@ -76,3 +75,4 @@ export const Navbar: React.FC = () => {
     </header>
   );
 };
+

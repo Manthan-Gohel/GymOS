@@ -57,11 +57,11 @@ Status legend: `[ ]` todo, `[x]` done, `[~]` blocked
 - [x] P1-17 | Equipment registry and manual maintenance schedules/reminders | Equipment records, manual maintenance schedules, reminder tasks/messages via mock with logging; no predictive maintenance; tests | P0-15, P0-14, P1-09
 
 ### 1.8 Staff panels (Owner/Admin/Reception/Trainer)
-- [ ] P1-18 | Frontend scaffold and auth shell | React+Vite+TS+Tailwind app with routing, auth/login against backend, role-aware navigation for owner/admin/reception/trainer only; build/test/lint setup | P0-15
-- [ ] P1-19 | Reception panel MVP | UI for member record entry/lookup, plan/membership actions, payments/dues, leads/trials, complaints; integrates APIs; smoke checks/tests where feasible | P1-02, P1-04, P1-06, P1-15, P1-16, P1-18
-- [ ] P1-20 | Admin panel MVP | UI for plans, trainers, staff attendance/payroll records, expenses, equipment/maintenance; RBAC-respected; tests/smoke checks | P1-03, P1-11, P1-13, P1-14, P1-17, P1-18
-- [ ] P1-21 | Owner dashboard MVP | UI for daily revenue/expense/profit, dues/expiries overview, key operational summaries; tests/smoke checks | P1-14, P1-18
-- [ ] P1-22 | Trainer panel MVP | UI for assigned members, availability, sessions, trainer attendance; tests/smoke checks | P1-12, P1-18
+- [x] P1-18 | Frontend scaffold and auth shell | React+Vite+TS+Tailwind app with routing, auth/login against backend, role-aware navigation for owner/admin/reception/trainer only; build/test/lint setup | P0-15
+- [x] P1-19 | Reception panel MVP | UI for member record entry/lookup, plan/membership actions, payments/dues, leads/trials, complaints; integrates APIs; smoke checks/tests where feasible | P1-02, P1-04, P1-06, P1-15, P1-16, P1-18
+- [x] P1-20 | Admin panel MVP | UI for plans, trainers, staff attendance/payroll records, expenses, equipment/maintenance; RBAC-respected; tests/smoke checks | P1-03, P1-11, P1-13, P1-14, P1-17, P1-18
+- [x] P1-21 | Owner dashboard MVP | UI for daily revenue/expense/profit, dues/expiries overview, key operational summaries; tests/smoke checks | P1-14, P1-18
+- [x] P1-22 | Trainer panel MVP | UI for assigned members, availability, sessions, trainer attendance; tests/smoke checks | P1-12, P1-18
 - [ ] P1-23 | Phase 1 integration, docs, and hardening | End-to-end owner/staff flows pass (member record->plan->payment->reminder via mock->dashboard/CRM/complaints/equipment); docs/API updated; full suite green | P1-10, P1-19, P1-20, P1-21, P1-22
 
 ## Phase 2: AI WhatsApp chatbot (only AI feature)

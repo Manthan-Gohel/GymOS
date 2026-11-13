@@ -3,6 +3,8 @@ import { api } from '../services/api';
 import { Member, CreateMemberPayload } from '../types/member';
 import { MembershipPlan, Membership } from '../types/plan';
 import { MemberDues } from '../types/payment';
+import { LeadsBoard } from '../components/LeadsBoard';
+import { ComplaintsBoard } from '../components/ComplaintsBoard';
 import {
   Users,
   UserPlus,
@@ -24,6 +26,7 @@ export const ReceptionPanel: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [tab, setTab] = useState<'members' | 'leads' | 'complaints'>('members');
 
   // Modals state
   const [showAddMember, setShowAddMember] = useState(false);
@@ -116,6 +119,7 @@ export const ReceptionPanel: React.FC = () => {
       await api.purchaseMembership({
         member_id: selectedMember.id,
         plan_id: Number(selectedPlanId),
+        start_date: new Date().toISOString().slice(0, 10),
       });
       setShowPurchasePlan(false);
       handleSelectMember(selectedMember);
@@ -190,7 +194,32 @@ export const ReceptionPanel: React.FC = () => {
         </div>
       )}
 
+      {/* Tabs */}
+      <div className="flex gap-1 border-b border-slate-200">
+        {([
+          ['members', 'Members & Payments'],
+          ['leads', 'Leads & Trials'],
+          ['complaints', 'Complaints'],
+        ] as const).map(([key, label]) => (
+          <button
+            key={key}
+            onClick={() => setTab(key)}
+            className={`px-4 py-2 text-sm font-semibold border-b-2 -mb-px transition ${
+              tab === key
+                ? 'border-emerald-600 text-emerald-700'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {tab === 'leads' && <LeadsBoard />}
+      {tab === 'complaints' && <ComplaintsBoard members={members} />}
+
       {/* Main Grid: Directory + Member Detail Drawer */}
+      {tab === 'members' && (
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left: Member Directory */}
         <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
@@ -233,9 +262,8 @@ export const ReceptionPanel: React.FC = () => {
                     <tr
                       key={member.id}
                       onClick={() => handleSelectMember(member)}
-                      className={`cursor-pointer hover:bg-slate-50 transition ${
-                        selectedMember?.id === member.id ? 'bg-emerald-50/60' : ''
-                      }`}
+                      className={`cursor-pointer hover:bg-slate-50 transition ${selectedMember?.id === member.id ? 'bg-emerald-50/60' : ''
+                        }`}
                     >
                       <td className="px-4 py-3 font-medium text-slate-900">
                         <div className="flex items-center space-x-2">
@@ -268,7 +296,7 @@ export const ReceptionPanel: React.FC = () => {
                         )}
                       </td>
                       <td className="px-4 py-3 text-xs">
-                        {member.whatsapp_consent && !member.opted_out ? (
+                        {member.whatsapp_consent && !member.whatsapp_opt_out ? (
                           <span className="inline-flex items-center space-x-1 text-emerald-600">
                             <CheckCircle2 className="w-3.5 h-3.5" />
                             <span>Consented</span>
@@ -335,7 +363,7 @@ export const ReceptionPanel: React.FC = () => {
                   <div>
                     <div className="text-xs text-slate-500">Outstanding Dues</div>
                     <div className="text-xl font-extrabold text-slate-900">
-                      ₹{memberDues ? (memberDues.dues_paise / 100).toFixed(2) : '0.00'}
+                      ₹{memberDues ? (memberDues.total_due_paise / 100).toFixed(2) : '0.00'}
                     </div>
                   </div>
                   <button
@@ -376,11 +404,10 @@ export const ReceptionPanel: React.FC = () => {
                             Plan #{m.plan_id}
                           </span>
                           <span
-                            className={`ml-2 px-1.5 py-0.5 rounded text-[10px] uppercase font-bold ${
-                              m.status === 'active'
-                                ? 'bg-emerald-100 text-emerald-800'
-                                : 'bg-slate-200 text-slate-700'
-                            }`}
+                            className={`ml-2 px-1.5 py-0.5 rounded text-[10px] uppercase font-bold ${m.status === 'active'
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : 'bg-slate-200 text-slate-700'
+                              }`}
                           >
                             {m.status}
                           </span>
@@ -403,6 +430,7 @@ export const ReceptionPanel: React.FC = () => {
           )}
         </div>
       </div>
+      )}
 
       {/* MODAL: New Member Registration */}
       {showAddMember && (

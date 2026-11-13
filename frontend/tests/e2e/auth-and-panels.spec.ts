@@ -25,3 +25,4 @@ test.describe('GymOS Staff Authentication and Navigation', () => {
     await expect(page.locator('input#email')).toHaveValue('owner@example.com');
   });
 });
+

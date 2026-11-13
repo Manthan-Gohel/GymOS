@@ -249,3 +249,26 @@
 - Tests: backend `python -m pytest` -> 68 passed (exit 0). `ruff check .` exit 0, `mypy app` -> Success: no issues found in 59 source files.
 - Status: Done, committed.
 - Known issues: No pagination offset/cursor yet; `/plans` still returns a bare array for backwards compatibility.
+
+## Iteration 35
+- Task: P1-18..P1-22 | Frontend scaffold, auth shell, and staff panels MVP (Reception, Admin, Owner, Trainer)
+- Changes:
+  - Initialized React 18 + Vite + TypeScript + Tailwind CSS application in `frontend/`.
+  - Added `api.ts` client wrapper supporting JWT auth, error extraction, and response normalization for both plain arrays and `{items, total}` paginated lists.
+  - Implemented `AuthContext` with JWT decoding, localStorage persistence, multi-role switcher, and role guards (`hasRole`).
+  - Added `ProtectedRoute`, `Navbar`, and `Sidebar` with role-aware navigation (Owner, Admin, Reception, Trainer).
+  - Implemented full staff panels:
+    - `Login.tsx`: Gym ID, email, password, and quick demo credentials presets.
+    - `ReceptionPanel.tsx`: Searchable member directory, new member registration modal with KYC and WhatsApp opt-in, plan enrollment modal, and payment recording modal with dues lookup.
+    - `AdminPanel.tsx`: Membership plans management (active/inactive toggle, plan creation), manual staff attendance roster, expense logging, and equipment maintenance schedules.
+    - `OwnerDashboard.tsx`: Executive revenue, active memberships, pending dues, automated WhatsApp reminder engine status, and recent invoice stream.
+    - `TrainerPanel.tsx`: Assigned members roster with medical/health notes, daily session schedule with completion toggles, and trainer check-in.
+  - Configured Playwright E2E suite (`playwright.config.ts`, `tests/e2e/auth-and-panels.spec.ts`).
+  - Added root test `tests/test_p1_18_frontend.py` verifying frontend structure, dependencies, configs, and panels.
+- Tests:
+  - `npm run build` -> built in 36.40s, exit code 0 (`dist/` generated, 0 TypeScript errors).
+  - `npm run lint` (`tsc --noEmit`) -> exit code 0.
+  - `python -m pytest tests/test_p1_18_frontend.py` -> 5 passed in 0.24s (exit 0).
+  - Root suite -> 13 passed in 0.25s (exit 0).
+- Status: Done. "Frontend not started" issue resolved.
+- Known issues: E2E Playwright tests require running Vite dev server + live backend; frontend UI styling uses Tailwind CSS.
