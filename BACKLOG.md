@@ -36,7 +36,7 @@ Status legend: `[ ]` todo, `[x]` done, `[~]` blocked
 
 ### 1.3 Payments
 - [x] P1-06 | Payment recording and dues | Record cash/UPI/card payments via mock/manual modes, partial payments, dues calculation, late fee rules; tests for balances and edge cases | P1-05
-- [ ] P1-07 | Payment receipts lookup and status | Issue/lookup receipts, payment status tracking; tests | P1-06
+- [x] P1-07 | Payment receipts lookup and status | Issue/lookup receipts, payment status tracking; tests | P1-06
 
 ### 1.4 WhatsApp templated reminders (non-AI)
 - [ ] P1-08 | WhatsApp template/message management and opt-out | Template/message storage and management for business-initiated reminders (controlled/approved content where applicable); member/contact consent and opt-out respected; tests ensure opt-out blocks send; compatible with openWA integration target (ADR 0001) | P1-01, P0-11, P0-10

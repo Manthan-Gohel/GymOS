@@ -163,3 +163,10 @@
 - Tests: backend `python -m pytest -q` -> 39 passed (exit 0). `ruff check .` exit 0, `mypy app` -> Success: no issues found in 37 source files. Migration upgrade/downgrade/upgrade verified on SQLite.
 - Status: Done, committed.
 - Known issues: Payment statuses limited to recorded 'paid' (no provider async states yet); overpayment is accepted but not credited/refunded; late fee is manual per invoice (no aging rules). YouPI-PG remains mock/blocked (BLK-002).
+
+## Iteration 23
+- Task: P1-07 | Payment receipts lookup and status
+- Changes: Added `GET /payments` (member filter, capped limit), `GET /payments/{id}/receipt` (receipt number `RCPT-{gym}-{payment:06d}`, payment/invoice/member snapshot), `POST /payments/{id}/status` (paid/pending/failed/refunded, owner/admin/reception) with invoice status + dues resync; service `update_payment_status`. Added `backend/tests/test_p1_07_receipts.py` (receipt lookup/list, refund reopens dues, cross-tenant isolation, invalid status 422).
+- Tests: backend `python -m pytest` -> 42 passed, 1 warning (exit 0). `ruff check .` exit 0, `mypy app` -> Success: no issues found in 37 source files.
+- Status: Done, committed.
+- Known issues: Receipts are JSON only (no PDF); status changes are manual until provider webhooks exist (BLK-002). No refunds ledger/payout reconciliation.

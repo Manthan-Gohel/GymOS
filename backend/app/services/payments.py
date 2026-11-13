@@ -87,6 +87,21 @@ def apply_late_fee(db: Session, *, gym_id: int, invoice_id: int, late_fee_paise:
     return invoice
 
 
+def update_payment_status(db: Session, *, gym_id: int, payment_id: int, status: str) -> Payment:
+    if status not in ("paid", "failed", "refunded", "pending"):
+        raise ValueError("unsupported payment status")
+    payment = db.query(Payment).filter(Payment.id == payment_id, Payment.gym_id == gym_id).first()
+    if payment is None:
+        raise ValueError("payment not found")
+    payment.status = status
+    db.flush()
+    if payment.invoice_id is not None:
+        invoice = db.query(Invoice).filter(Invoice.id == payment.invoice_id, Invoice.gym_id == gym_id).first()
+        if invoice is not None:
+            sync_invoice_status(db, invoice)
+    return payment
+
+
 def member_dues(db: Session, *, gym_id: int, member_id: int) -> dict:
     invoices = (
         db.query(Invoice)
