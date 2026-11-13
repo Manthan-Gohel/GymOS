@@ -45,7 +45,7 @@ Status legend: `[ ]` todo, `[x]` done, `[~]` blocked
 
 ### 1.5 Trainers & sessions
 - [x] P1-11 | Trainer profiles, availability, member assignment | Trainer entities (staff users/records as appropriate), availability slots, assignment to members; RBAC; tests | P0-15
-- [ ] P1-12 | Session booking and trainer attendance | Book/cancel/reschedule sessions, track trainer attendance; conflict/availability checks; tests | P1-11
+- [x] P1-12 | Session booking and trainer attendance | Book/cancel/reschedule sessions, track trainer attendance; conflict/availability checks; tests | P1-11
 
 ### 1.6 Staff, expenses, dashboard
 - [ ] P1-13 | Staff attendance (manual by admin) and payroll records | Admin records staff attendance manually; payroll record structures (calculation-ready, not disbursement); tests | P0-15

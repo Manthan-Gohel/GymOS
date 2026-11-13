@@ -200,3 +200,10 @@
 - Tests: backend `python -m pytest` -> 51 passed (exit 0, warning filtered). `ruff check .` exit 0, `mypy app` -> Success: no issues found in 46 source files.
 - Status: Done, committed.
 - Known issues: Trainer availability is recurring weekly only (no date exceptions); trainer user linkage is optional and not validated against the trainer role yet; assignment has no history/audit beyond is_active.
+
+## Iteration 28
+- Task: P1-12 | Session booking and trainer attendance
+- Changes: Added `TrainingSession`/`TrainerAttendance` models + migration `19a9fa4259a4_add_training_sessions_and_trainer_.py`; `POST/GET /sessions`, `POST /sessions/{id}/reschedule`, `POST /sessions/{id}/cancel`, `POST /sessions/{id}/attendance`, `GET /sessions/{id}/attendance`. Booking validates window ordering, weekly availability coverage (if configured), trainer and member overlap conflicts, tenant scoping; attendance marks session completed. Added `backend/tests/test_p1_12_sessions.py`.
+- Tests: backend `python -m pytest` -> 54 passed (exit 0). `ruff check .` exit 0, `mypy app` -> Success: no issues found in 48 source files.
+- Status: Done, committed.
+- Known issues: Sessions use naive local datetimes (no timezone conversion); availability is weekly recurring without exceptions; no calendar feed/notifications; attendance is a single check-in/out pair per session.
