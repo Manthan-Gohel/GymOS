@@ -1,4 +1,7 @@
+import os
+
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes.auth import router as auth_router
 from app.api.routes.complaints import router as complaints_router
@@ -21,6 +24,21 @@ from app.api.routes.whatsapp import router as whatsapp_router
 from app.api.routes.whatsapp_guardrails import router as whatsapp_guardrails_router
 
 app = FastAPI(title="GymOS API", version="0.1.0")
+
+# VULN-007: Explicit CORS — never wildcard in production
+_CORS_ORIGINS_ENV = os.getenv("CORS_ALLOWED_ORIGINS", "")
+_allowed_origins: list[str] = (
+    [o.strip() for o in _CORS_ORIGINS_ENV.split(",") if o.strip()]
+    if _CORS_ORIGINS_ENV
+    else ["http://localhost:5173", "http://127.0.0.1:5173"]
+)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=_allowed_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 app.include_router(auth_router)
 app.include_router(members_router)
 app.include_router(plans_router)

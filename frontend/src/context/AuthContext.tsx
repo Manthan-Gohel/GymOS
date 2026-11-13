@@ -18,7 +18,9 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem('gymos_token'));
+  // VULN-008: JWT is never stored in localStorage. Login keeps it in memory; the
+  // HttpOnly `gymos_token` cookie restores the session on reload via /auth/me.
+  const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [activeRole, setActiveRole] = useState<UserRole | null>(() => {
     return (localStorage.getItem('gymos_active_role') as UserRole) || null;
@@ -39,40 +41,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     const initAuth = async () => {
-      const savedToken = localStorage.getItem('gymos_token');
-      if (savedToken) {
-        try {
-          const profile = await api.getMe();
-          setUser(profile);
-          const roles = profile.roles || parseTokenRoles(savedToken);
-          if (!activeRole || !roles.includes(activeRole)) {
-            const defaultRole = roles[0] || null;
-            setActiveRole(defaultRole);
-            if (defaultRole) localStorage.setItem('gymos_active_role', defaultRole);
-          }
-        } catch (err) {
-          console.error('Session restore failed:', err);
-          logout();
+      try {
+        const profile = await api.getMe();
+        setUser(profile);
+        const roles = profile.roles || [];
+        if (!activeRole || !roles.includes(activeRole)) {
+          const defaultRole = roles[0] || null;
+          setActiveRole(defaultRole);
+          if (defaultRole) localStorage.setItem('gymos_active_role', defaultRole);
         }
+      } catch {
+        // Not logged in (no valid cookie) — that's a normal cold start, not an error.
+        setUser(null);
       }
       setIsLoading(false);
     };
 
     initAuth();
-  }, [token]);
+  }, []);
 
   const login = async (credentials: LoginRequest) => {
     setIsLoading(true);
     try {
       const response = await api.login(credentials);
-      const accessToken = response.access_token;
-      localStorage.setItem('gymos_token', accessToken);
-      setToken(accessToken);
+      api.setToken(response.access_token);
+      setToken(response.access_token);
 
       // Fetch user profile
       const profile = await api.getMe();
       setUser(profile);
-      const roles = profile.roles || parseTokenRoles(accessToken);
+      const roles = profile.roles || parseTokenRoles(response.access_token);
       const initialRole = roles[0] || null;
       setActiveRole(initialRole);
       if (initialRole) {
@@ -84,7 +82,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = () => {
-    localStorage.removeItem('gymos_token');
+    void api.logout();
     localStorage.removeItem('gymos_active_role');
     setToken(null);
     setUser(null);
@@ -114,7 +112,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         token,
         roles,
         activeRole,
-        isAuthenticated: !!token,
+        isAuthenticated: !!user,
         isLoading,
         login,
         logout,

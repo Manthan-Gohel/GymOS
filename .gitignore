@@ -41,3 +41,4 @@ infra/*.local.yml
 
 # Alembic (keep versions tracked)
 
+frontend/playwright-report/

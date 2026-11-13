@@ -50,22 +50,32 @@ export interface Paginated<T> {
 const BASE_URL = '';
 
 class ApiService {
-  private getToken(): string | null {
-    return localStorage.getItem('gymos_token');
+  // VULN-008: token lives in memory only — the HttpOnly cookie authenticates across reloads.
+  private token: string | null = null;
+
+  setToken(t: string | null): void {
+    this.token = t;
+  }
+
+  async logout(): Promise<void> {
+    try {
+      await this.request<void>('/auth/logout', { method: 'POST' });
+    } finally {
+      this.token = null;
+    }
   }
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    const token = this.getToken();
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       ...(options.headers as Record<string, string>),
     };
 
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+    if (this.token) {
+      headers['Authorization'] = `Bearer ${this.token}`;
     }
 
-    const response = await fetch(`${BASE_URL}${endpoint}`, { ...options, headers });
+    const response = await fetch(`${BASE_URL}${endpoint}`, { ...options, headers, credentials: 'include' });
 
     if (!response.ok) {
       let errorMessage = 'Request failed';

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
@@ -12,14 +12,18 @@ from app.models.core import Role, User, UserRole
 
 bearer_scheme = HTTPBearer(auto_error=False)
 
+COOKIE_NAME = "gymos_token"
+
 
 def get_current_user(
+    request: Request,
     credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(bearer_scheme)],
     db: Annotated[Session, Depends(get_db)],
 ):
-    if credentials is None:
+    # Bearer header wins (API clients); HttpOnly cookie fallback (browser sessions).
+    token = credentials.credentials if credentials else request.cookies.get(COOKIE_NAME)
+    if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
-    token = credentials.credentials
     try:
         payload = decode_access_token(token)
     except ValueError:

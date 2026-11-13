@@ -65,7 +65,17 @@ class MemberUpdate(BaseModel):
         return v.strip() if isinstance(v, str) else v
 
 
-def _to_dict(m: Member) -> dict:
+def _mask_kyc(number: str | None) -> str | None:
+    if number is None:
+        return None
+    return "****" + number[-4:] if len(number) > 4 else "****"
+
+
+def _to_dict(m: Member, roles: set[str] | None = None) -> dict:
+    # VULN-004: KYC ID is owner/admin-only; health notes hidden from trainer.
+    # reception keeps health_notes (front desk needs it) but never sees raw KYC IDs.
+    roles = roles or set()
+    full_pii = bool(roles & {"owner", "admin"})
     return {
         "id": m.id,
         "gym_id": m.gym_id,
@@ -75,11 +85,11 @@ def _to_dict(m: Member) -> dict:
         "email": m.email,
         "photo_ref": m.photo_ref,
         "kyc_id_type": m.kyc_id_type,
-        "kyc_id_number": m.kyc_id_number,
+        "kyc_id_number": m.kyc_id_number if full_pii else _mask_kyc(m.kyc_id_number),
         "address": m.address,
         "emergency_contact_name": m.emergency_contact_name,
         "emergency_contact_phone": m.emergency_contact_phone,
-        "health_notes": m.health_notes,
+        "health_notes": m.health_notes if (full_pii or "reception" in roles) else None,
         "whatsapp_consent": m.whatsapp_consent,
         "whatsapp_opt_out": m.whatsapp_opt_out,
         "is_active": m.is_active,
@@ -112,7 +122,7 @@ def create_member(
     )
     db.commit()
     db.refresh(member)
-    return _to_dict(member)
+    return _to_dict(member, set(getattr(current_user, "role_names", []) or []))
 
 
 @router.get("")
@@ -131,7 +141,7 @@ def list_members(
     if is_active is not None:
         query = query.filter(Member.is_active.is_(is_active))
     items = query.order_by(Member.id.desc()).limit(min(max(limit, 1), 200)).all()
-    return {"items": [_to_dict(m) for m in items], "total": len(items)}
+    return {"items": [_to_dict(m, set(getattr(current_user, "role_names", []) or [])) for m in items], "total": len(items)}
 
 
 @router.get("/{member_id}")
@@ -148,7 +158,7 @@ def get_member(
     )
     if not member:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Member not found")
-    return _to_dict(member)
+    return _to_dict(member, set(getattr(current_user, "role_names", []) or []))
 
 
 @router.patch("/{member_id}")
@@ -182,4 +192,4 @@ def update_member(
     )
     db.commit()
     db.refresh(member)
-    return _to_dict(member)
+    return _to_dict(member, set(getattr(current_user, "role_names", []) or []))

@@ -98,6 +98,8 @@ def test_expense_validation_and_rbac():
     h = auth(client)
     r = client.post("/expenses", json={"category": "rent", "amount_paise": -1, "spent_on": "2026-01-05"}, headers=h)
     assert r.status_code == 422
+    # VULN-008: clear the auth cookie too — an empty header set alone is no longer "unauthenticated"
+    client.cookies.clear()
     r = client.get("/dashboard/daily", headers={})
     assert r.status_code == 401
     app.dependency_overrides.clear()

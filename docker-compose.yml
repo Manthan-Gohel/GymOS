@@ -4,9 +4,11 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-gymos}
       POSTGRES_USER: ${POSTGRES_USER:-gymos}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-gymos}
-    ports:
-      - "5432:5432"
+      # VULN-009: no insecure default — compose fails fast unless POSTGRES_PASSWORD is set
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    # VULN-009: DB is not reachable from the host; only the api/worker/beat network uses it
+    expose:
+      - "5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -17,8 +19,9 @@ services:
 
   redis:
     image: redis:7
-    ports:
-      - "6379:6379"
+    # VULN-009: not exposed to host; internal network only
+    expose:
+      - "6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -33,7 +36,7 @@ services:
     env_file:
       - .env
     environment:
-      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://gymos:gymos@db:5432/gymos}
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://gymos:${POSTGRES_PASSWORD}@db:5432/gymos}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
     volumes:
       - ./backend:/app
@@ -53,7 +56,7 @@ services:
     env_file:
       - .env
     environment:
-      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://gymos:gymos@db:5432/gymos}
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://gymos:${POSTGRES_PASSWORD}@db:5432/gymos}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
     volumes:
       - ./backend:/app
@@ -71,7 +74,7 @@ services:
     env_file:
       - .env
     environment:
-      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://gymos:gymos@db:5432/gymos}
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://gymos:${POSTGRES_PASSWORD}@db:5432/gymos}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
     volumes:
       - ./backend:/app

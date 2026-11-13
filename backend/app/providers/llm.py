@@ -52,10 +52,6 @@ class RealLLMProvider:
     timeout_seconds: float = 15.0
 
     def generate_reply(self, *, prompt: str, context: dict[str, Any] | None = None) -> dict[str, Any]:
-        if not self.api_key:
-            # Fall back safely if API key is not supplied
-            return CannedFallbackLLMProvider().generate_reply(prompt=prompt, context=context)
-
         ctx = context or {}
         context_str = "\n".join(f"- {k}: {v}" for k, v in ctx.items()) if ctx else "No additional context."
 
@@ -70,10 +66,10 @@ class RealLLMProvider:
             f"Gym Context:\n{context_str}"
         )
 
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.api_key}",
-        }
+        # Ollama and other local servers need no Authorization header
+        headers = {"Content-Type": "application/json"}
+        if self.api_key:
+            headers["Authorization"] = f"Bearer {self.api_key}"
 
         payload = {
             "model": self.model,
@@ -118,7 +114,7 @@ def get_llm_provider() -> LLMProvider:
         return CannedFallbackLLMProvider()
     if provider == "mock":
         return MockLLMProvider()
-    if provider in {"real", "openai", "gemini", "groq", "openrouter", "deepseek"}:
+    if provider in {"real", "openai", "gemini", "groq", "openrouter", "deepseek", "ollama"}:
         return RealLLMProvider()
 
     return CannedFallbackLLMProvider()

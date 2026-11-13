@@ -13,6 +13,8 @@ class Gym(Base):
     gym_id: Mapped[int] = mapped_column(nullable=False, index=True)
     branch_id: Mapped[int | None] = mapped_column(nullable=True, index=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
+    # VULN-002: unforgeable per-gym token used in the webhook URL path
+    webhook_token: Mapped[str | None] = mapped_column(String(64), nullable=True, unique=True, index=True)
 
 
 class Branch(Base):

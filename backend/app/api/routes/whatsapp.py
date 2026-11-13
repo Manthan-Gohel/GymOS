@@ -1,13 +1,15 @@
 from __future__ import annotations
 
+import hashlib
+import hmac
 from datetime import UTC, datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Request, status
-from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
+from app.core.config import settings
 from app.core.rbac import require_roles
 from app.db.session import get_db
 from app.models.conversation import Conversation, InboundMessage
@@ -19,12 +21,27 @@ router = APIRouter(prefix="/whatsapp", tags=["whatsapp"])
 
 StaffWrite = Annotated[User, Depends(require_roles(["owner", "admin", "reception"]))]
 
-# Mock provider signature for dev; real openWA service will send JSON with these fields
-class InboundWebhookPayload(BaseModel):
-    from_phone: str = Field(..., alias="from")
-    body: str
-    gym_id: int | None = None
-    branch_id: int | None = None
+def _verify_webhook_signature(raw_body: bytes, signature: str | None) -> None:
+    """VULN-002: Verify HMAC-SHA256 signature from openWA Easy API webhook.
+
+    If OPENWA_WEBHOOK_SECRET is configured, the header is required and verified.
+    If secret is not configured (dev mode), signature check is skipped with a warning.
+    """
+    secret = settings.openwa_webhook_secret
+    if not secret:
+        # Dev/mock mode — skip; log a warning so ops notice
+        return
+    if not signature:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing webhook signature",
+        )
+    expected = "sha256=" + hmac.new(secret.encode(), raw_body, hashlib.sha256).hexdigest()
+    if not hmac.compare_digest(expected, signature):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid webhook signature",
+        )
 
 
 def _get_or_create_conversation(
@@ -47,45 +64,20 @@ def _get_or_create_conversation(
     return conv
 
 
-@router.post("/webhook", status_code=status.HTTP_202_ACCEPTED)
-async def inbound_webhook(
-    request: Request,
-    db: Annotated[Session, Depends(get_db)],
-    x_gymos_signature: Annotated[str | None, Header(alias="X-GymOS-Signature")] = None,
-):
-    """Receive inbound WhatsApp message from openWA service (or mock).
-
-    In production the openWA service should sign the payload; here we accept
-    an optional header for future validation. Body can be raw text or JSON.
-    """
-    content_type = request.headers.get("content-type", "")
-    payload: dict
-    if "application/json" in content_type:
-        payload = await request.json()
-    else:
-        form = await request.form()
-        payload = dict(form)
-
-    from_phone = str(payload.get("from") or payload.get("From") or "").strip()
-    body = str(payload.get("body") or payload.get("Body") or "").strip()
-    gym_id = payload.get("gym_id")
-    branch_id = payload.get("branch_id")
-
-    if not from_phone or not body:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="Missing 'from' or 'body'")
-
-    if gym_id is None:
-        gym = db.query(Gym).first()
-        if gym is None:
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="No gym configured")
-        gym_id = gym.gym_id
-        branch_id = branch_id or 1
-
-    conv = _get_or_create_conversation(db, int(gym_id), int(branch_id or 1), from_phone)
+def _process_inbound(
+    db: Session,
+    gym: Gym,
+    branch_id: int,
+    from_phone: str,
+    body: str,
+    payload: dict,
+) -> dict:
+    """Shared webhook processing; tenant (gym) is resolved by the caller, never from the payload."""
+    conv = _get_or_create_conversation(db, gym.id, branch_id, from_phone)
 
     msg = InboundMessage(
-        gym_id=gym_id,
-        branch_id=branch_id or 1,
+        gym_id=gym.id,
+        branch_id=branch_id,
         conversation_id=conv.id,
         from_phone=from_phone,
         body=body,
@@ -98,8 +90,8 @@ async def inbound_webhook(
     if not conv.bot_paused:
         decision = run_chatbot(
             db,
-            gym_id=gym_id,
-            branch_id=branch_id or 1,
+            gym_id=gym.id,
+            branch_id=branch_id,
             from_phone=from_phone,
             inbound_text=body,
             conversation_id=conv.id,
@@ -107,15 +99,15 @@ async def inbound_webhook(
         # Log bot reply
         send_logged_message(
             db,
-            gym_id=gym_id,
-            branch_id=branch_id or 1,
+            gym_id=gym.id,
+            branch_id=branch_id,
             phone=from_phone,
             body=decision.reply,
             kind="chatbot_reply",
             why=f"conversation:{conv.id}",
             template_name="chatbot_reply",
         )
-        conv.last_message_at = __import__("datetime").datetime.now(__import__("datetime").UTC)
+        conv.last_message_at = datetime.now(UTC)
         conv.status = "escalated" if decision.handoff else "active"
         db.commit()
         return {
@@ -127,6 +119,81 @@ async def inbound_webhook(
         }
 
     return {"status": "accepted", "conversation_id": conv.id, "message_id": msg.id, "bot_reply": None, "handoff": False}
+
+
+@router.post("/webhook", status_code=status.HTTP_202_ACCEPTED)
+async def inbound_webhook(
+    request: Request,
+    db: Annotated[Session, Depends(get_db)],
+    x_gymos_signature: Annotated[str | None, Header(alias="X-GymOS-Signature")] = None,
+):
+    """Dev/mock webhook.
+
+    VULN-002: legacy unauthenticated route is dev-only. In production/staging use
+    /webhook/{gym_token} which resolves the tenant from an unforgeable URL token.
+    """
+    if settings.app_env.lower() in {"production", "staging"}:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Use /whatsapp/webhook/{gym_token}")
+
+    raw_body = await request.body()
+    _verify_webhook_signature(raw_body, x_gymos_signature)
+
+    content_type = request.headers.get("content-type", "")
+    payload: dict
+    if "application/json" in content_type:
+        import json
+        payload = json.loads(raw_body)
+    else:
+        form = await request.form()
+        payload = dict(form)
+
+    from_phone = str(payload.get("from") or payload.get("From") or "").strip()
+    body = str(payload.get("body") or payload.get("Body") or "").strip()
+    branch_id = payload.get("branch_id")
+
+    if not from_phone or not body:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="Missing 'from' or 'body'")
+
+    gym = db.query(Gym).first()
+    if gym is None:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="No gym configured")
+
+    return _process_inbound(db, gym, int(branch_id or 1), from_phone, body, payload)
+
+
+@router.post("/webhook/{gym_token}", status_code=status.HTTP_202_ACCEPTED)
+async def inbound_webhook_tokened(
+    gym_token: str,
+    request: Request,
+    db: Annotated[Session, Depends(get_db)],
+    x_gymos_signature: Annotated[str | None, Header(alias="X-GymOS-Signature")] = None,
+):
+    """Production webhook: VULN-002 — tenant resolved from per-gym URL token, never payload.gym_id."""
+    raw_body = await request.body()
+    _verify_webhook_signature(raw_body, x_gymos_signature)
+
+    content_type = request.headers.get("content-type", "")
+    payload: dict
+    if "application/json" in content_type:
+        import json
+        payload = json.loads(raw_body)
+    else:
+        form = await request.form()
+        payload = dict(form)
+
+    from_phone = str(payload.get("from") or payload.get("From") or "").strip()
+    body = str(payload.get("body") or payload.get("Body") or "").strip()
+    branch_id = payload.get("branch_id")
+
+    if not from_phone or not body:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="Missing 'from' or 'body'")
+
+    gym = db.query(Gym).filter(Gym.webhook_token == gym_token).first()
+    if gym is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Unknown gym token")
+
+    # payload gym_id / gym tokens are deliberately ignored — tenant comes from the URL token
+    return _process_inbound(db, gym, int(branch_id or 1), from_phone, body, payload)
 
 
 @router.get("/conversations")

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from datetime import UTC, datetime
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -13,6 +12,7 @@ from app.db.session import get_db
 from app.models.conversation import Conversation, InboundMessage
 from app.models.core import User
 from app.models.message import OutboundMessage
+from app.services import ratelimit as rate_limiter
 
 router = APIRouter(prefix="/whatsapp", tags=["whatsapp"])
 
@@ -24,34 +24,20 @@ class RateLimitConfig(BaseModel):
     max_messages: int = Field(default=10, ge=1)
 
 
-# In-memory rate limit store (for dev/tests; replace with Redis in production)
-_rate_limit_store: dict[str, list[float]] = {}
-
-
 _DEFAULT_RATE_LIMIT_CONFIG = RateLimitConfig()
 
 
 def check_rate_limit(phone: str, config: RateLimitConfig = _DEFAULT_RATE_LIMIT_CONFIG) -> tuple[bool, int]:
-    """Check if phone has exceeded rate limit. Returns (allowed, remaining)."""
-    now = datetime.now(UTC).timestamp()
-    window_start = now - config.window_seconds
+    """Check if phone has exceeded rate limit. Returns (allowed, remaining).
 
-    if phone not in _rate_limit_store:
-        _rate_limit_store[phone] = []
-
-    # Clean old entries
-    _rate_limit_store[phone] = [ts for ts in _rate_limit_store[phone] if ts > window_start]
-
-    if len(_rate_limit_store[phone]) >= config.max_messages:
-        return False, 0
-
-    _rate_limit_store[phone].append(now)
-    return True, config.max_messages - len(_rate_limit_store[phone])
+    Redis-backed when reachable, process-local fallback otherwise.
+    """
+    return rate_limiter.allow(f"wa:{phone}", limit=config.max_messages, window_seconds=config.window_seconds)
 
 
 def clear_rate_limit(phone: str) -> None:
     """Clear rate limit for a phone (e.g., after staff intervention)."""
-    _rate_limit_store.pop(phone, None)
+    rate_limiter.clear(f"wa:{phone}")
 
 
 @router.get("/conversations/{conversation_id}/audit")

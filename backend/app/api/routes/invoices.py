@@ -11,6 +11,9 @@ from app.core.rbac import require_roles
 from app.db.session import get_db
 from app.models.core import User
 from app.models.invoice import Invoice
+from app.models.member import Member
+from app.models.membership import Membership
+from app.models.payment import Payment
 from app.services.invoices import generate_invoice, invoice_to_dict
 from app.services.payments import apply_late_fee, invoice_due_paise
 
@@ -46,6 +49,18 @@ def _get_invoice(db: Session, gym_id: int, invoice_id: int) -> Invoice:
     return inv
 
 
+def _validate_tenant_refs(db: Session, gym_id: int, payload: InvoiceCreate) -> None:
+    """VULN-003: every referenced entity must belong to the caller's gym."""
+    if db.query(Member).filter(Member.id == payload.member_id, Member.gym_id == gym_id).first() is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Member not found")
+    if payload.membership_id is not None:
+        if db.query(Membership).filter(Membership.id == payload.membership_id, Membership.gym_id == gym_id).first() is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Membership not found")
+    if payload.payment_id is not None:
+        if db.query(Payment).filter(Payment.id == payload.payment_id, Payment.gym_id == gym_id).first() is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Payment not found")
+
+
 @router.post("", status_code=status.HTTP_201_CREATED)
 def create_invoice(
     payload: InvoiceCreate,
@@ -53,6 +68,7 @@ def create_invoice(
     _role: StaffWrite,
     db: Annotated[Session, Depends(get_db)],
 ):
+    _validate_tenant_refs(db, current_user.gym_id, payload)
     inv = generate_invoice(
         db,
         gym_id=current_user.gym_id,
