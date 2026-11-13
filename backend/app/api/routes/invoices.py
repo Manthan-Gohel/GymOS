@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
@@ -62,6 +62,24 @@ def create_invoice(
     db.commit()
     db.refresh(inv)
     return invoice_to_dict(inv)
+
+
+@router.get("")
+def list_invoices(
+    current_user: Annotated[User, Depends(get_current_user)],
+    _role: StaffRead,
+    db: Annotated[Session, Depends(get_db)],
+    member_id: int | None = None,
+    status_value: Annotated[str | None, Query(alias="status")] = None,
+    limit: int = 100,
+):
+    query = db.query(Invoice).filter(Invoice.gym_id == current_user.gym_id)
+    if member_id is not None:
+        query = query.filter(Invoice.member_id == member_id)
+    if status_value is not None:
+        query = query.filter(Invoice.status == status_value)
+    items = query.order_by(Invoice.id.desc()).limit(min(max(limit, 1), 200)).all()
+    return {"items": [invoice_to_dict(i) for i in items], "total": len(items)}
 
 
 @router.get("/{invoice_id}")

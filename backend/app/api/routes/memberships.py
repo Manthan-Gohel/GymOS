@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import date, timedelta
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -88,6 +88,24 @@ def purchase(
     db.commit()
     db.refresh(m)
     return _to_dict(m)
+
+
+@router.get("")
+def list_memberships(
+    current_user: Annotated[User, Depends(get_current_user)],
+    _role: StaffRead,
+    db: Annotated[Session, Depends(get_db)],
+    member_id: int | None = None,
+    status_value: Annotated[str | None, Query(alias="status")] = None,
+    limit: int = 100,
+):
+    query = db.query(Membership).filter(Membership.gym_id == current_user.gym_id)
+    if member_id is not None:
+        query = query.filter(Membership.member_id == member_id)
+    if status_value is not None:
+        query = query.filter(Membership.status == status_value)
+    items = query.order_by(Membership.id.desc()).limit(min(max(limit, 1), 200)).all()
+    return {"items": [_to_dict(m) for m in items], "total": len(items)}
 
 
 @router.get("/{membership_id}")

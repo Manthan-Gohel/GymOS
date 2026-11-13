@@ -242,3 +242,10 @@
 - Tests: backend `python -m pytest` -> 66 passed (exit 0). `ruff check .` exit 0, `mypy app` -> Success: no issues found in 59 source files.
 - Status: Done, committed.
 - Known issues: Reminders target an internal `gym-staff` pseudo-recipient (no staff phone model); no predictive maintenance or parts inventory; no maintenance cost tracking.
+
+## Iteration 34
+- Task: Supporting list endpoints for frontend panels (P1-19/P1-20/P1-21 prerequisites)
+- Changes: Added `GET /members` (`q` name/phone search, `is_active`), `GET /memberships` (`member_id`, `status`), `GET /invoices` (`member_id`, `status`); all tenant-scoped and return `{items,total}` with a 200-row cap. Added `backend/tests/test_list_endpoints.py`.
+- Tests: backend `python -m pytest` -> 68 passed (exit 0). `ruff check .` exit 0, `mypy app` -> Success: no issues found in 59 source files.
+- Status: Done, committed.
+- Known issues: No pagination offset/cursor yet; `/plans` still returns a bare array for backwards compatibility.

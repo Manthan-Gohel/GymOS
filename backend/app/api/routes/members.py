@@ -4,6 +4,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, EmailStr, Field, field_validator
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
@@ -112,6 +113,25 @@ def create_member(
     db.commit()
     db.refresh(member)
     return _to_dict(member)
+
+
+@router.get("")
+def list_members(
+    current_user: Annotated[User, Depends(get_current_user)],
+    _role: StaffRead,
+    db: Annotated[Session, Depends(get_db)],
+    q: str | None = None,
+    is_active: bool | None = None,
+    limit: int = 100,
+):
+    query = db.query(Member).filter(Member.gym_id == current_user.gym_id)
+    if q:
+        like = f"%{q.strip()}%"
+        query = query.filter(or_(Member.full_name.ilike(like), Member.phone.ilike(like)))
+    if is_active is not None:
+        query = query.filter(Member.is_active.is_(is_active))
+    items = query.order_by(Member.id.desc()).limit(min(max(limit, 1), 200)).all()
+    return {"items": [_to_dict(m) for m in items], "total": len(items)}
 
 
 @router.get("/{member_id}")
